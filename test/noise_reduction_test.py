@@ -1,16 +1,16 @@
 import unittest
 import soundfile as sf
 from francis import noise_reduction
+import librosa
 
-    
 
 class NoiseReductionTest(unittest.TestCase):
-    
-    
-    
     def test_audio_splitting(self):
-        audio_data = librosa.load("test/fixtures/sparse_birdsong.mp3")
-        reduced = noise_reduction.process(audio_data, 2)
-        sf.write("test/fixtures/reduced_real.wav", reduced, audio_data[1])
-        
-       
+        # this is a lame test but I couldn't think of anything else
+        # it works but it produces slightly different results each time
+        # but the same overall effect
+
+        expected_audio = librosa.load("test/fixtures/reduced_chirp.wav")
+
+        audio_data = librosa.load("test/fixtures/chirp.wav")
+        actual_audio = noise_reduction.process(audio_data, 0.5)
