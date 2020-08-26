@@ -4,3 +4,4 @@ librosa
 keras
 sklearn
 soundfile
+noisereduce
