@@ -3,3 +3,4 @@ pandas
 librosa
 keras
 sklearn
+soundfile
