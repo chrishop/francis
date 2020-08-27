@@ -1,16 +1,15 @@
 import unittest
 import librosa
-import scipy.io.wavfile
+import numpy as np
+
+import numpy.testing
+from francis import high_pass_filter
+
 
 class HighPassTest(unittest.TestCase):
     def test_high_pass_filter(self):
-        expected_audio = librosa.load("fixtures/high_pass_filtered.wav")
-        audio_data = librosa.load("fixtures/chirp.wav")
-        actual_audio = high_pass_filter.process(audio_data)
+        expected_audio, _ = librosa.load("test/fixtures/high_pass_filtered.wav")
+        audio_data = librosa.load("test/fixtures/high_pass_noisy.wav")
+        actual_audio, _ = high_pass_filter.process(audio_data)
         
-
-'''
-testing = HighPassTest()
-output = testing.test_high_pass_filter()
-scipy.io.wavfile.write("fixtures/high_pass_chirp.wav", output[1], output[0])
-'''
+        numpy.testing.assert_array_almost_equal(expected_audio, actual_audio)
