@@ -25,8 +25,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install wheel
+        pip install wheel black
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with unittest
       run: |
         python -m unittest test/*_test.py
+    - name: Check code is formatted
+      run: |
+        black --check .
