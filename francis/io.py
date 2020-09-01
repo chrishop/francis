@@ -36,9 +36,7 @@ def convert_to_wav(folderpath, delete_old=False):
         )
 
         # reads mp3 and writes wav
-        AudioSegment.from_mp3(path).export(
-            __wav_path(path), format="wav"
-        ).close()
+        AudioSegment.from_mp3(path).export(__wav_path(path), format="wav").close()
 
         if delete_old:
             print(f"removing {__filename(path)}.mp3")

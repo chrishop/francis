@@ -32,4 +32,4 @@ jobs:
         python -m unittest test/*_test.py
     - name: Check code is formatted
       run: |
-        black --check --line-length 79 . 
+        black --check . 

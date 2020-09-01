@@ -10,9 +10,7 @@ class IOTest(unittest.TestCase):
         the_df = io.load_into_df("test/fixtures/load_dataset/audio")
 
         # it has the correct columns
-        self.assertEqual(
-            the_df.columns.to_list(), ["id", "label", "audio_buffer"]
-        )
+        self.assertEqual(the_df.columns.to_list(), ["id", "label", "audio_buffer"])
 
         # it has an id
         self.assertEqual(the_df.iloc[0].to_list()[0], "434652")
@@ -49,12 +47,8 @@ class IOTest(unittest.TestCase):
         self.assertTrue(".wav" in converted[0])
 
         # mp3 files have been deleted
-        self.assertEqual(
-            glob.glob("test/fixtures/convert_dataset/audio/**/*.mp3"), []
-        )
+        self.assertEqual(glob.glob("test/fixtures/convert_dataset/audio/**/*.mp3"), [])
 
         # delete wav files
-        for filepath in glob.glob(
-            "test/fixtures/convert_dataset/audio/**/*.wav"
-        ):
+        for filepath in glob.glob("test/fixtures/convert_dataset/audio/**/*.wav"):
             os.remove(filepath)
