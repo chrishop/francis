@@ -8,14 +8,10 @@ class SplitFilterTest(unittest.TestCase):
     def test_split_recordings(self):
 
         # 11 second audio
-        blackbird_audio = np.random.uniform(
-            low=-1.0, high=1.0, size=(11 * 22050,)
-        )
+        blackbird_audio = np.random.uniform(low=-1.0, high=1.0, size=(11 * 22050,))
 
         # 6 seconds audio
-        sparrow_audio = np.random.uniform(
-            low=-1.0, high=1.0, size=(6 * 22050,)
-        )
+        sparrow_audio = np.random.uniform(low=-1.0, high=1.0, size=(6 * 22050,))
 
         pre_df = pd.DataFrame(
             {
@@ -35,11 +31,7 @@ class SplitFilterTest(unittest.TestCase):
         self.assertEqual(len(result_df.iloc[0]["audio_buffer"]), 5 * 22050)
 
         # two are blackbirds
-        self.assertEqual(
-            len(result_df.loc[result_df["label"] == "blackbird"]), 2
-        )
+        self.assertEqual(len(result_df.loc[result_df["label"] == "blackbird"]), 2)
 
         # one is a sparrow
-        self.assertEqual(
-            len(result_df.loc[result_df["label"] == "sparrow"]), 1
-        )
+        self.assertEqual(len(result_df.loc[result_df["label"] == "sparrow"]), 1)
