@@ -6,3 +6,5 @@ sklearn
 soundfile
 noisereduce
 tensorflow
+pydub
+xeno-canto
