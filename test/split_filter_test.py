@@ -2,6 +2,8 @@ import unittest
 import pandas as pd
 import numpy as np
 from francis import split_filter
+from francis import noise_reduction
+import librosa
 
 
 class SplitFilterTest(unittest.TestCase):
@@ -35,3 +37,14 @@ class SplitFilterTest(unittest.TestCase):
 
         # one is a sparrow
         self.assertEqual(len(result_df.loc[result_df["label"] == "sparrow"]), 1)
+
+
+"""
+expected_data = librosa.load("fixtures/split_filter_expected.wav")
+expected_data = noise_reduction.__split_audio(expected_data, 5)
+actual_data = librosa.load("fixtures/split_filter_test.wav")
+actual_data = split_filter.__split_buffer(actual_data[0], 22050, 5)
+actual_data = split_filter.__filter_chunks(actual_data)
+print(np.array_equal(expected_data, actual_data)) # returns true
+# Uses instead: self.assertTrue(np.array_equal(expected_data, actual_data))
+"""
