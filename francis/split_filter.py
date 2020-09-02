@@ -4,11 +4,6 @@
 # the dataset.
 # onwards from here the data is sent to be made into a spectrogram
 
-# remove below
-import sys
-
-sys.path.append("/home/leo/francis")
-
 import pandas as pd
 import numpy as np
 
