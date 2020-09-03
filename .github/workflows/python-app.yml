@@ -32,4 +32,5 @@ jobs:
         python -m unittest test/*_test.py
     - name: Check code is formatted
       run: |
+        black --diff .
         black --check . 

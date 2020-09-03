@@ -9,14 +9,14 @@ class ModelAdaptorTest(unittest.TestCase):
     def test_training_testing_split(self):
         mock_df = pd.DataFrame(
             {
-                "bird_name": [
+                "label": [
                     "CommonBlackbird",
                     "Wren",
                     "Chicken",
                     "Duck",
                     "CommonBlackBird",
                 ],
-                "mfcc_data": [
+                "spectrogram": [
                     np.array([1, 2, 3, 4, 5]),
                     np.array([6, 7, 8, 9, 10]),
                     np.array([11, 12, 13, 14, 15]),
@@ -39,8 +39,8 @@ class ModelAdaptorTest(unittest.TestCase):
 
         mock_df = pd.DataFrame(
             {
-                "bird_name": ["CommonBlackbird", "Wren"],
-                "mfcc_data": [np.array([1, 2, 3, 4, 5]), np.array([6, 7, 8, 9, 10])],
+                "label": ["CommonBlackbird", "Wren"],
+                "spectrogram": [np.array([1, 2, 3, 4, 5]), np.array([6, 7, 8, 9, 10])],
             }
         )
 
