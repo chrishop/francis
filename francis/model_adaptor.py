@@ -4,8 +4,8 @@ from keras.utils import to_categorical
 
 
 def call(the_dataframe, test_size=0.2, random_state=42):
-    birdnames = the_dataframe["bird_name"].to_numpy()
-    mfcc_data = the_dataframe["mfcc_data"].to_numpy()
+    birdnames = the_dataframe["label"].to_numpy()
+    mfcc_data = the_dataframe["spectrogram"].to_numpy()
 
     birdnames_binary = __label(birdnames)
 
