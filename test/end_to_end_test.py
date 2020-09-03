@@ -51,11 +51,8 @@ class EndToEndTest(unittest.TestCase):
         print(f"test_input: {len(test_input)}")
         print(f"train_output: {len(train_output)}")
         print(f"test_output: {len(test_output)}")
-        
+
         # train model
-        #the_model = model.make(train_input, train_output)
-        
-        #pass_rate = model.test(the_model, train_input, train_output, verbose=1)
-        #print(pass_rate)
-
-
+        # the_model = model.make(train_input, train_output)
+        # pass_rate = model.test(the_model, train_input, train_output, verbose=1)
+        # print(pass_rate)
