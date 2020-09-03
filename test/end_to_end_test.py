@@ -12,21 +12,24 @@ from francis import model
 class EndToEndTest(unittest.TestCase):
     def setUp(self):
         # change to test directory
+        self.root = os.getcwd()
         os.chdir("test/fixtures/end_to_end")
 
     def tearDown(self):
         # delete downloads
         shutil.rmtree("dataset", ignore_errors=True)
+        os.chdir(self.root)
 
     def test_main(self):
         # downloads files and converts them to wav
         downloaded_filepaths = io.download(
-            ["ssp:palumbus", "gen:Columba", "rec:david m"]
+            ["ssp:palumbus", "gen:Columba", "rec:david m"],
+            delete_old=True
         )
         print(downloaded_filepaths)
 
         # load files into pre_df
-        pre_df = io.load_into_df(downloaded_filepaths)
+        pre_df = io.load_into_df(".")
         print(pre_df)
 
         # TODO add preprocess stage
