@@ -9,12 +9,13 @@ from pydub import AudioSegment
 # into dataframe as an audio buffer and a sample rate
 
 
-def download(xeno_canto_args):
+def download(xeno_canto_args, delete_old=False):
     xenocanto.download(xeno_canto_args)
-    return convert_to_wav(os.getcwd() + "/dataset/audio")
+    return convert_to_wav(os.getcwd() + "/dataset/audio", delete_old=delete_old)
 
 
-def load_into_df(filepaths):
+def load_into_df(folderpath):
+    filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
     file_data = []
     for i, path in enumerate(filepaths):
         print(f"loading into dataframe: {i + 1}/{len(filepaths)}")
