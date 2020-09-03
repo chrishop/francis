@@ -9,6 +9,7 @@ import librosa
 def noisy_audio(seconds):
     return np.random.uniform(low=-1.0, high=1.0, size=(seconds * 22050,))
 
+
 def quiet_audio(seconds):
     return np.random.uniform(low=-0.01, high=0.01, size=(seconds * 22050,))
 
@@ -50,4 +51,3 @@ class SplitFilterTest(unittest.TestCase):
 
         # one is mixed
         self.assertEqual(len(result_df.loc[result_df["label"] == "mixed_noise"]), 1)
-
