@@ -14,8 +14,7 @@ def download(xeno_canto_args):
     return convert_to_wav(os.getcwd() + "/dataset/audio")
 
 
-def load_into_df(folderpath):
-    filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
+def load_into_df(filepaths):
     file_data = []
     for i, path in enumerate(filepaths):
         print(f"loading into dataframe: {i + 1}/{len(filepaths)}")
