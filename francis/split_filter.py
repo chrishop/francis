@@ -34,8 +34,8 @@ def __split_buffer(buffer, sample_rate, seconds):
 
 
 def __filter_chunks(split_audio, type="quartile", cutoff="default"):
-    """ type="quartile" uses the 95% quartile of each chunk as its filter criterea,
-        type="std" uses the standand deviation of each chunk as its filter criterea
+    """type="quartile" uses the 95% quartile of each chunk as its filter criterea,
+    type="std" uses the standand deviation of each chunk as its filter criterea
     """
     abs_audio = np.array(
         [np.absolute(chunk) for chunk in split_audio]
