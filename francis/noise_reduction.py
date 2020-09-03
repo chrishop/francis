@@ -21,7 +21,7 @@ def __quietest(split_amplitudes):
     for i in range(len(split_amplitudes)):
         average_volume = np.mean(np.abs(split_amplitudes[i]))
         if quietest_volume == None or quietest_volume > average_volume:
-            quitest_volume = average_volume
+            quietest_volume = average_volume
             quietest_index = i
     return split_amplitudes[quietest_index]
 
