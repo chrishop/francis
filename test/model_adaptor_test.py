@@ -26,7 +26,7 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_in, test_in, train_out, test_out = model_adaptor.call(
+        train_out, test_out, train_in, test_in = model_adaptor.call(
             mock_df, test_size=0.2, random_state=42
         )
 
@@ -44,9 +44,10 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_in, test_in, train_out, test_out = model_adaptor.call(
+        train_out, test_out, train_in, test_in = model_adaptor.call(
             mock_df, test_size=0.5, random_state=42
         )
 
-        assert_array_equal(train_in[0], [1, 0])
-        assert_array_equal(train_out[0], np.array([1, 2, 3, 4, 5]))
+        assert_array_equal(train_out[0], [1, 0])
+        
+        
