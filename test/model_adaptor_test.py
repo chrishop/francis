@@ -3,10 +3,27 @@ from francis import model_adaptor
 import pandas as pd
 import numpy as np
 from numpy.testing import assert_array_equal
+import librosa
+
+
+def noisy_audio(seconds):
+    return np.random.uniform(low=-1.0, high=1.0, size=(seconds * 22050,))
+
+
+def make_spectrogram(seconds):
+    return np.reshape(
+        librosa.power_to_db(
+            librosa.feature.melspectrogram(noisy_audio(seconds), sr=22050)
+        ),
+        (128, 216, 1),
+    )
 
 
 class ModelAdaptorTest(unittest.TestCase):
     def test_training_testing_split(self):
+
+        a_spectrogram = make_spectrogram(5)
+
         mock_df = pd.DataFrame(
             {
                 "label": [
@@ -17,11 +34,11 @@ class ModelAdaptorTest(unittest.TestCase):
                     "CommonBlackBird",
                 ],
                 "spectrogram": [
-                    np.array([1, 2, 3, 4, 5]),
-                    np.array([6, 7, 8, 9, 10]),
-                    np.array([11, 12, 13, 14, 15]),
-                    np.array([16, 17, 18, 19, 20]),
-                    np.array([21, 22, 23, 24, 25]),
+                    a_spectrogram,
+                    a_spectrogram,
+                    a_spectrogram,
+                    a_spectrogram,
+                    a_spectrogram,
                 ],
             }
         )
@@ -37,10 +54,35 @@ class ModelAdaptorTest(unittest.TestCase):
 
     def test_label_encoding(self):
 
+        blackbird_spectrogram = make_spectrogram(5)
+        duck_spectrogram = make_spectrogram(5)
+
         mock_df = pd.DataFrame(
             {
                 "label": ["CommonBlackbird", "Wren"],
-                "spectrogram": [np.array([1, 2, 3, 4, 5]), np.array([6, 7, 8, 9, 10])],
+                "spectrogram": [blackbird_spectrogram, duck_spectrogram],
+            }
+        )
+
+        train_out, _, _, _ = model_adaptor.call(mock_df, test_size=0.5, random_state=42)
+
+        assert_array_equal(train_out[0], [1, 0])
+
+    def test_list_is_correct_format_for_model(self):
+        # to be accepted by keras, the data needs to be in a pure numpy array
+
+        blackbird_spectrogram = make_spectrogram(5)
+        duck_spectrogram = make_spectrogram(5)
+
+        mock_df = pd.DataFrame(
+            {
+                "label": ["CommonBlackbird", "Duck", "Sparrow", "tit"],
+                "spectrogram": [
+                    blackbird_spectrogram,
+                    duck_spectrogram,
+                    blackbird_spectrogram,
+                    duck_spectrogram,
+                ],
             }
         )
 
@@ -48,6 +90,9 @@ class ModelAdaptorTest(unittest.TestCase):
             mock_df, test_size=0.5, random_state=42
         )
 
-        assert_array_equal(train_out[0], [1, 0])
-        
-        
+        # the top list must be a numpy array
+        self.assertTrue(type(train_in) is np.ndarray)
+        self.assertTrue(type(test_in) is np.ndarray)
+
+        # each item must have this shape
+        self.assertEqual(np.shape(test_in[0]), (128, 216, 1))
