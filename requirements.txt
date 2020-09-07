@@ -8,3 +8,4 @@ noisereduce
 tensorflow
 pydub
 xeno-canto
+pyarrow
