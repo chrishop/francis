@@ -39,7 +39,7 @@ def __filter_chunks(split_audio, type="quartile", cutoff="default"):
     """
     abs_audio = np.array(
         [np.absolute(chunk) for chunk in split_audio]
-    )  #  converts amplitudes to positive to beable to perform quartile
+    )  # converts amplitudes to positive to be able to perform quartile
     if type == "quartile":
         if cutoff == "default":
             cutoff = 0.15  # 15% default cuttoff for 95% quartile
@@ -59,9 +59,9 @@ def __filter_chunks(split_audio, type="quartile", cutoff="default"):
     chunk_mask = [
         chunk > cutoff * max_chunk_measure for chunk in chunk_measure
     ]  # create a mask based on the max 95% or std and the cutoff
-    print(
-        f"{len(chunk_mask) - sum(chunk_mask)} chunks out of {len(chunk_mask)} chunks in the audio where filtered out"
-    )
+    # print(
+    #    f"{len(chunk_mask) - sum(chunk_mask)} chunks out of {len(chunk_mask)} chunks in the audio where filtered out"
+    # )
     filtered_audio = [
         chunk for i, chunk in enumerate(split_audio) if chunk_mask[i]
     ]  # masks out the chunks which are bellow the cuttoff
