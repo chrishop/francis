@@ -33,7 +33,7 @@ class EndToEndTest(unittest.TestCase):
         # load files into pre_df
         pre_df = io.load_into_df(".")
 
-        # TODO add preprocess stage
+        # preprocess stage
         pre_df = preprocess.process(pre_df)
 
         # split and filter
