@@ -35,8 +35,6 @@ class SplitFilterTest(unittest.TestCase):
 
         result_df = split_filter.call(pre_df)
 
-        print(result_df)
-
         # there are 4 results
         self.assertEqual(len(result_df.index), 4)
 
