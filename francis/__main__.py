@@ -11,38 +11,39 @@ import pandas as pd
 def main():
     # give folder name to process
     path = sys.argv[1]
-    pre_df = ''
+    pre_df = ""
 
     # load into df
     if not is_file(path):
         io.convert_to_wav(path, delete_old=True)
         pre_df = io.load_into_df(path)
-        
+
         # preprocess
         print("preprocessing")
         pre_df = preprocess.process(pre_df)
-        
+
         # split and filter
         print("split filter")
         the_df = split_filter.call(pre_df)
-        
+
         # save df
         print("saving to .parquet file")
-        the_df.to_parquet('full_df.parquet')
+        the_df.to_parquet("full_df.parquet")
 
     else:
         print("loading from parquet file")
         the_df = pd.read_parquet(path)
-        
+
     print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
-    
+
     # adapt to model
     print("adapting model")
-    train_output, test_output, train_input, test_input = model_adaptor.call(the_df, test_size=0.2)
+    train_output, test_output, train_input, test_input = model_adaptor.call(
+        the_df, test_size=0.2
+    )
 
     samples = train_output.shape
-
 
     print(f"about to train on {samples} samples!")
     # print(f"blackbird samples: {blackbird_samples}")
@@ -67,7 +68,7 @@ def main():
 
 
 def is_file(path):
-    if '.' in path:
+    if "." in path:
         return True
     return False
 
