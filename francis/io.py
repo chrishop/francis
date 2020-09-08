@@ -19,12 +19,15 @@ def load_into_df(folderpath):
     file_data = []
     for i, path in enumerate(filepaths):
         print(f"loading into dataframe: {i + 1}/{len(filepaths)}")
-        audio_buffer, _ = librosa.load(path)
-        the_id = __filename(path)
-        label = __foldername(path)
-        file_data.append((the_id, label, audio_buffer))
+        file_data.append(__get_file_data(path))
 
     return pd.DataFrame(file_data, columns=["id", "label", "audio_buffer"])
+
+
+def load_file_into_df(filepath: str):
+    return pd.DataFrame(
+        [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
+    )
 
 
 def convert_to_wav(folderpath, delete_old=False):
@@ -45,6 +48,14 @@ def convert_to_wav(folderpath, delete_old=False):
         converted.append(__wav_path(path))
 
     return converted
+
+
+def __get_file_data(path: str) -> tuple:
+    the_id = __filename(path)
+    label = __foldername(path)
+    audio_buffer, _ = librosa.load(path)
+
+    return (the_id, label, audio_buffer)
 
 
 def __wav_path(filepath):
