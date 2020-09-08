@@ -64,7 +64,9 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_out, _, _, _ = model_adaptor.adapt(mock_df, test_size=0.5, random_state=42)
+        train_out, _, _, _ = model_adaptor.adapt(
+            mock_df, test_size=0.5, random_state=42
+        )
 
         assert_array_equal(train_out[0], [1, 0])
 

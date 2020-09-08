@@ -9,3 +9,5 @@ tensorflow
 pydub
 xeno-canto
 pyarrow
+click
+h5py
