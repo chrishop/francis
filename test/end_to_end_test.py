@@ -20,7 +20,7 @@ class EndToEndTest(unittest.TestCase):
         shutil.rmtree("dataset", ignore_errors=True)
         os.chdir(self.root)
 
-    def test_main(self):
+    def test_train(self):
 
         # this stuff breaks CI
         # downloads files and converts them to wav
@@ -40,7 +40,7 @@ class EndToEndTest(unittest.TestCase):
         the_df = spectrogram.add_to_df(the_df)
 
         # adapt to model
-        train_output, test_output, train_input, test_input = model_adaptor.call(the_df)
+        train_output, test_output, train_input, test_input = model_adaptor.adapt(the_df)
 
         # make model
         the_model = model.make()

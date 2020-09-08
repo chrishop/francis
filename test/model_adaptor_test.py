@@ -43,7 +43,7 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_out, test_out, train_in, test_in = model_adaptor.call(
+        train_out, test_out, train_in, test_in = model_adaptor.adapt(
             mock_df, test_size=0.2, random_state=42
         )
 
@@ -64,7 +64,7 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_out, _, _, _ = model_adaptor.call(mock_df, test_size=0.5, random_state=42)
+        train_out, _, _, _ = model_adaptor.adapt(mock_df, test_size=0.5, random_state=42)
 
         assert_array_equal(train_out[0], [1, 0])
 
@@ -86,7 +86,7 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        train_out, test_out, train_in, test_in = model_adaptor.call(
+        train_out, test_out, train_in, test_in = model_adaptor.adapt(
             mock_df, test_size=0.5, random_state=42
         )
 
@@ -107,12 +107,7 @@ class ModelAdaptorTest(unittest.TestCase):
             }
         )
 
-        results_out, results_in = model_adaptor.call(mock_df, split_override=True)
-
-        # results has two items the test output then the test input
-
-        # the input item is an ndarray with two spectrograms in
-        self.assertEqual(results_out.shape, (2, 2))
+        results_in = model_adaptor.adapt_spectrograms(mock_df)
 
         # the output is an array with hot encoding of categories
         self.assertEqual(results_in.shape, (2, 128, 216, 1))
