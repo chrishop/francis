@@ -4,16 +4,17 @@ from keras.utils import to_categorical
 import numpy as np
 
 
-def call(the_dataframe, test_size=0.2, random_state=42, split_override=False):
+def adapt(the_dataframe, test_size=0.2, random_state=42, split_override=False):
     birdnames = the_dataframe["label"].to_numpy()
     spectrograms = __shape_spectrograms(the_dataframe["spectrogram"].to_numpy())
 
     birdnames_binary = __label(birdnames)
 
-    if split_override:
-        return birdnames_binary, np.asarray(spectrograms)
-
     return __split(birdnames_binary, spectrograms, test_size, random_state)
+
+
+def adapt_spectrograms(the_dataframe):
+    return np.asarray(__shape_spectrograms(the_dataframe["spectrogram"].to_numpy()))
 
 
 def __label(birdnames):
