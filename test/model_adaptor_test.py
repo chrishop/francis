@@ -93,6 +93,26 @@ class ModelAdaptorTest(unittest.TestCase):
         # the top list must be a numpy array
         self.assertTrue(type(train_in) is np.ndarray)
         self.assertTrue(type(test_in) is np.ndarray)
-
         # each item must have this shape
         self.assertEqual(np.shape(test_in[0]), (128, 216, 1))
+
+    def test_no_test_training_split_with_argument_override(self):
+        blackbird_spectrogram = make_spectrogram(5)
+        wren_spectrogram = make_spectrogram(5)
+
+        mock_df = pd.DataFrame(
+            {
+                "label": ["CommonBlackbird", "Wren"],
+                "spectrogram": [blackbird_spectrogram, wren_spectrogram],
+            }
+        )
+
+        results_out, results_in = model_adaptor.call(mock_df, split_override=True)
+
+        # results has two items the test output then the test input
+
+        # the input item is an ndarray with two spectrograms in
+        self.assertEqual(results_out.shape, (2, 2))
+
+        # the output is an array with hot encoding of categories
+        self.assertEqual(results_in.shape, (2, 128, 216, 1))
