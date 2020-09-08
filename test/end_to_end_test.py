@@ -34,10 +34,7 @@ class EndToEndTest(unittest.TestCase):
         pre_df = io.load_into_df(".")
 
         # preprocess stage
-        pre_df = preprocess.process(pre_df)
-
-        # split and filter
-        the_df = split_filter.call(pre_df)
+        the_df = preprocess.process(pre_df)
 
         # add spectrogram
         the_df = spectrogram.add_to_df(the_df)
@@ -54,5 +51,5 @@ class EndToEndTest(unittest.TestCase):
         )
 
         # test model again
-        pass_rate = model.test(the_model, train_input, train_output, verbose=0)
+        pass_rate = model.test(the_model, test_input, test_output, verbose=0)
         print(pass_rate)

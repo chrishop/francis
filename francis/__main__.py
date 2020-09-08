@@ -20,11 +20,7 @@ def main():
 
         # preprocess
         print("preprocessing")
-        pre_df = preprocess.process(pre_df)
-
-        # split and filter
-        print("split filter")
-        the_df = split_filter.call(pre_df)
+        the_df = preprocess.process(pre_df)
 
         # save df
         print("saving to .parquet file")
@@ -63,7 +59,7 @@ def main():
 
     # test model
     print("testing model")
-    pass_rate = model.test(the_model, train_input, train_output, verbose=0)
+    pass_rate = model.test(the_model, test_input, test_output, verbose=0)
     print(pass_rate)
 
 
