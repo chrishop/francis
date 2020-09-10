@@ -43,6 +43,9 @@ def train(data_path):
     print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
 
+    print("saving categories to json")
+    io.save_categories("categories.json", np.unique(the_df["label"].to_numpy()))
+
     # adapt to model
     print("adapting model")
     train_output, test_output, train_input, test_input = model_adaptor.adapt(
@@ -50,7 +53,6 @@ def train(data_path):
     )
 
     samples = train_output.shape
-
     print(f"about to train on {samples} samples!")
     # print(f"blackbird samples: {blackbird_samples}")
     # print(f"robin samples: {robin_samples}")
@@ -108,13 +110,13 @@ def listen(audio_sample):
     the_model = load_model("model.h5")
 
     print("predicting ...")
-    predictions = the_model.predict(spectrograms)
+    predictions = np.around(the_model.predict(spectrograms))
 
-    print("these are the predictions")
-    print(np.around(predictions))
+    print("load categories")
+    categories = io.load_categories("categories.json")
 
-    print("with uncertainty")
-    print(np.around(predictions, decimals=2))
+    print("predictions ..")
+    print(model_adaptor.adapt_predictions(predictions, categories))
 
 
 def is_file(path):
