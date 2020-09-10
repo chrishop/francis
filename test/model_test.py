@@ -37,7 +37,3 @@ class ModelTest(unittest.TestCase):
         the_model = model.make(len(mock_input))
 
         model.train(the_model, mock_input, mock_output, batch_size=1, epochs=5)
-
-
-rand = ModelTest()
-rand.test_model_test()
