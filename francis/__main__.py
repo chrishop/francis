@@ -44,7 +44,7 @@ def train(data_path):
     the_df = spectrogram.add_to_df(the_df)
 
     print("saving categories to json")
-    io.save_categories("categories.json", np.unique(the_df["label"].to_numpy()))
+    io.save_categories("categories.json", the_df)
 
     # adapt to model
     print("adapting model")

@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import xenocanto
 from pydub import AudioSegment
+import numpy as np
 import json
 
 # loads all files in folders and subfolders
@@ -31,13 +32,15 @@ def load_file_into_df(filepath: str):
     )
 
 
-def save_categories(filepath: str, an_object):
+def save_categories(filepath: str, df):
+    data = np.unique(df["label"].to_numpy()).tolist()
+
     with open(filepath, "w") as json_file:
-        json.dump(an_object, json_file)
+        json.dump(data, json_file)
 
 
 def load_categories(filepath):
-    with open(filepath, "w") as json_file:
+    with open(filepath, "r") as json_file:
         return json.load(json_file)
 
 
