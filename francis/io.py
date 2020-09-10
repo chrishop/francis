@@ -31,9 +31,14 @@ def load_file_into_df(filepath: str):
     )
 
 
-def save_to_json(filepath: str, an_object):
+def save_categories(filepath: str, an_object):
     with open(filepath, "w") as json_file:
         json.dump(an_object, json_file)
+
+
+def load_categories(filepath):
+    with open(filepath, "w") as json_file:
+        return json.load(json_file)
 
 
 def convert_to_wav(folderpath, delete_old=False):
