@@ -4,7 +4,7 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 
 
-def make():
+def make(num_birds):
     model = Sequential()
     model.add(
         Conv2D(
@@ -21,7 +21,7 @@ def make():
     model.add(Flatten())
     model.add(Dense(128, activation="relu"))
     model.add(Dropout(0.5))
-    model.add(Dense(2, activation="softmax"))
+    model.add(Dense(num_birds, activation="softmax"))
 
     model.compile(
         loss="categorical_crossentropy", metrics=["accuracy"], optimizer="adam"

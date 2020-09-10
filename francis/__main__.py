@@ -40,6 +40,9 @@ def train(data_path):
         print("loading from parquet file")
         the_df = pd.read_parquet(data_path)
 
+    # count the num of unique label entries in the df
+    num_birds = the_df['label'].nunique()
+
     print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
 
@@ -57,7 +60,7 @@ def train(data_path):
 
     # make model
     print("making model")
-    the_model = model.make()
+    the_model = model.make(num_birds)
 
     the_model.summary()
 
