@@ -41,7 +41,7 @@ def train(data_path):
         the_df = pd.read_parquet(data_path)
 
     # count the num of unique label entries in the df
-    num_birds = the_df['label'].nunique()
+    num_birds = the_df["label"].nunique()
 
     print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
