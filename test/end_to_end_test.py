@@ -39,11 +39,14 @@ class EndToEndTest(unittest.TestCase):
         # add spectrogram
         the_df = spectrogram.add_to_df(the_df)
 
+        # count the num of unique label entries in the df
+        num_birds = the_df["label"].nunique()
+
         # adapt to model
         train_output, test_output, train_input, test_input = model_adaptor.adapt(the_df)
 
         # make model
-        the_model = model.make()
+        the_model = model.make(num_birds)
 
         # train model
         model.train(

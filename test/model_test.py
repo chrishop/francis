@@ -20,13 +20,13 @@ def make_spectrogram(seconds):
 class ModelTest(unittest.TestCase):
     def test_model_make(self):
 
-        model.make()
+        model.make(2)
 
     def test_model_test(self):
         mock_input = np.asarray([make_spectrogram(5), make_spectrogram(5)])
         mock_output = np.array([[0.0, 1.0], [1.0, 0.0]])
 
-        the_model = model.make()
+        the_model = model.make(len(mock_input))
 
         model.test(the_model, mock_input, mock_output)
 
@@ -34,6 +34,6 @@ class ModelTest(unittest.TestCase):
         mock_input = np.asarray([make_spectrogram(5), make_spectrogram(5)])
         mock_output = np.array([[0.0, 1.0], [1.0, 0.0]])
 
-        the_model = model.make()
+        the_model = model.make(len(mock_input))
 
         model.train(the_model, mock_input, mock_output, batch_size=1, epochs=5)
