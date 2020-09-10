@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import xenocanto
 from pydub import AudioSegment
+import json
 
 # loads all files in folders and subfolders
 # into dataframe as an audio buffer and a sample rate
@@ -28,6 +29,11 @@ def load_file_into_df(filepath: str):
     return pd.DataFrame(
         [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
     )
+
+
+def save_to_json(filepath: str, an_object):
+    with open(filepath, "w") as json_file:
+        json.dump(an_object, json_file)
 
 
 def convert_to_wav(folderpath, delete_old=False):

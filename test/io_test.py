@@ -2,6 +2,7 @@ import unittest
 import os
 from francis import io
 import glob
+import os
 
 
 class IOTest(unittest.TestCase):
@@ -41,3 +42,18 @@ class IOTest(unittest.TestCase):
 
         # it has a label
         self.assertEqual(the_df.iloc[0].to_list()[1], "CommonBlackbird")
+
+    def test_save_to_json(self):
+
+        category_list = ["CommonBlackbird", "EurasianRobin", "Wren"]
+        expected_json = '["CommonBlackbird", "EurasianRobin", "Wren"]'
+
+        io.save_to_json("test/fixtures/test_category_save.json", category_list)
+
+        # load json file
+        with open("test/fixtures/test_category_save.json") as test_file:
+            resulting_json = test_file.read()
+
+            self.assertEqual(resulting_json, expected_json)
+
+        os.remove("test/fixtures/test_category_save.json")
