@@ -40,7 +40,7 @@ class SplitFilterTest(unittest.TestCase):
         self.assertEqual(len(result_df.index), 4)
 
         # each buffer is 5s long
-        self.assertEqual(len(result_df.iloc[0]["audio_buffer"]), 5 * 22050)
+        self.assertEqual(len(result_df["audio_buffer"].iloc[0]), 5 * 22050)
 
         # two are blackbirds
         self.assertEqual(len(result_df.loc[result_df["label"] == "blackbird"]), 2)

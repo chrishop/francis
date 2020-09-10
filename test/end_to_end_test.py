@@ -20,7 +20,7 @@ class EndToEndTest(unittest.TestCase):
         shutil.rmtree("dataset", ignore_errors=True)
         os.chdir(self.root)
 
-    def test_main(self):
+    def test_train(self):
 
         # this stuff breaks CI
         # downloads files and converts them to wav
@@ -34,16 +34,13 @@ class EndToEndTest(unittest.TestCase):
         pre_df = io.load_into_df(".")
 
         # preprocess stage
-        pre_df = preprocess.process(pre_df)
-
-        # split and filter
-        the_df = split_filter.call(pre_df)
+        the_df = preprocess.process(pre_df)
 
         # add spectrogram
         the_df = spectrogram.add_to_df(the_df)
 
         # adapt to model
-        train_output, test_output, train_input, test_input = model_adaptor.call(the_df)
+        train_output, test_output, train_input, test_input = model_adaptor.adapt(the_df)
 
         # make model
         the_model = model.make()
@@ -54,5 +51,5 @@ class EndToEndTest(unittest.TestCase):
         )
 
         # test model again
-        pass_rate = model.test(the_model, train_input, train_output, verbose=0)
+        pass_rate = model.test(the_model, test_input, test_output, verbose=0)
         print(pass_rate)

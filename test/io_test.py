@@ -2,6 +2,8 @@ import unittest
 import os
 from francis import io
 import glob
+import os
+import pandas as pd
 
 
 class IOTest(unittest.TestCase):
@@ -24,31 +26,34 @@ class IOTest(unittest.TestCase):
             ["CommonBlackbird", "CommonWoodPidgeon"],
         )
 
-    @unittest.skip("can't get this working with ci, uncomment to test locally")
-    def test_convert_to_wav(self):
-        # copy mp3 files in from safe folder
-        file_from = "test/fixtures/convert_dataset/434652.mp3"
-        file_to = "test/fixtures/convert_dataset/audio/CommonBlackbird/"
-        os.system(f"cp {file_from} {file_to}")
+    def test_load_file(self):
 
-        file_from = "test/fixtures/convert_dataset/463432.mp3"
-        file_to = "test/fixtures/convert_dataset/audio/CommonWoodPidgeon/"
-        os.system(f"cp {file_from} {file_to}")
-
-        converted = io.convert_to_wav(
-            "test/fixtures/convert_dataset/audio", delete_old=True
+        the_df = io.load_file_into_df(
+            "test/fixtures/load_dataset/audio/CommonBlackbird/434652.wav"
         )
 
-        # files from both folders have been converted
-        self.assertTrue("CommonBlackbird" in converted[0])
-        self.assertTrue("CommonWoodPidgeon" in converted[1])
+        # it has the correct columns
+        self.assertEqual(the_df.columns.to_list(), ["id", "label", "audio_buffer"])
 
-        # the extension is .wav
-        self.assertTrue(".wav" in converted[0])
+        # it only has one item
+        self.assertEqual(len(the_df.index), 1)
 
-        # mp3 files have been deleted
-        self.assertEqual(glob.glob("test/fixtures/convert_dataset/audio/**/*.mp3"), [])
+        # it has an id
+        self.assertEqual(the_df.iloc[0].to_list()[0], "434652")
 
-        # delete wav files
-        for filepath in glob.glob("test/fixtures/convert_dataset/audio/**/*.wav"):
-            os.remove(filepath)
+        # it has a label
+        self.assertEqual(the_df.iloc[0].to_list()[1], "CommonBlackbird")
+
+    def test_save_categories(self):
+        fake_df = pd.DataFrame({"label": ["CommonBlackbird", "EurasianRobin", "Wren"]})
+        expected_json = '["CommonBlackbird", "EurasianRobin", "Wren"]'
+
+        io.save_categories("test/fixtures/test_category_save.json", fake_df)
+
+        # load json file
+        with open("test/fixtures/test_category_save.json") as test_file:
+            resulting_json = test_file.read()
+
+            self.assertEqual(resulting_json, expected_json)
+
+        os.remove("test/fixtures/test_category_save.json")
