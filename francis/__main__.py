@@ -7,6 +7,8 @@ import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
+import hashlib
+import os
 
 
 @click.group()
@@ -16,7 +18,8 @@ def cli():
 
 @click.command()
 @click.argument("data_path")
-def train(data_path):
+@click.option("-d", "--data-folder", is_flag=True)
+def train(data_path, data_folder):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
@@ -24,7 +27,7 @@ def train(data_path):
     """
 
     # load into df
-    if not is_file(data_path):
+    if not data_folder:
         io.convert_to_wav(data_path, delete_old=True)
         pre_df = io.load_into_df(data_path)
 
@@ -32,13 +35,17 @@ def train(data_path):
         print("preprocessing")
         the_df = preprocess.process(pre_df)
 
+        # creating directory to put results in
+        # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
+        # os.mkdir(os.get_cwd() + "/" + training_folder)
+
         # save df
-        print("saving to .parquet file")
-        the_df.to_parquet("a_df.parquet")
+        print(f"saving to multiple parquet files in /test_train_data")
+        io.save_df("test_train_data", the_df, rows_per_file=1000)
 
     else:
-        print("loading from parquet file")
-        the_df = pd.read_parquet(data_path)
+        print(f"loading from {data_path}")
+        the_df = io.load_df(data_path)
 
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
@@ -57,8 +64,6 @@ def train(data_path):
 
     samples = train_output.shape
     print(f"about to train on {samples} samples!")
-    # print(f"blackbird samples: {blackbird_samples}")
-    # print(f"robin samples: {robin_samples}")
 
     # make model
     print("making model")
