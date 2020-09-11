@@ -57,3 +57,23 @@ class IOTest(unittest.TestCase):
             self.assertEqual(resulting_json, expected_json)
 
         os.remove("test/fixtures/test_category_save.json")
+
+    def test_save_df(self):
+
+        fake_df = pd.DataFrame({"data": [i for i in range(210)]})
+
+        data_files = io.save_df(
+            "test/fixtures/save_dataframe", fake_df, rows_per_file=100
+        )
+
+        # should put leftover rows into their own .parquet file
+        self.assertEqual(len(data_files), 3)
+
+        for elem in data_files:
+            os.remove(elem)
+
+    def test_load_df(self):
+
+        loaded_df = io.load_df("test/fixtures/load_dataframe")
+
+        self.assertEqual(loaded_df["data"].tolist(), [i for i in range(210)])

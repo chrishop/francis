@@ -6,6 +6,7 @@ import xenocanto
 from pydub import AudioSegment
 import numpy as np
 import json
+import math
 
 # loads all files in folders and subfolders
 # into dataframe as an audio buffer and a sample rate
@@ -30,6 +31,29 @@ def load_file_into_df(filepath: str):
     return pd.DataFrame(
         [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
     )
+
+
+def save_df(folderpath: str, df, rows_per_file=1000):
+    rows = len(df.index)
+    number_of_files = math.ceil(rows / rows_per_file)
+    split_df = np.array_split(df, number_of_files)
+
+    files_made = []
+    for i, mini_df in enumerate(split_df):
+        filepath = folderpath + f"/train_test_data_{i}.parquet"
+
+        try:
+            mini_df.to_parquet(filepath)
+            files_made.append(filepath)
+        except Exception as e:
+            print(e)
+            print("oops couldn't handle that one")
+
+    return files_made
+
+
+def load_df(folderpath: str):
+    return pd.read_parquet(folderpath)
 
 
 def save_categories(filepath: str, df):
