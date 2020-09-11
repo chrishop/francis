@@ -4,6 +4,8 @@ import pandas as pd
 import os
 import xenocanto
 from pydub import AudioSegment
+from progress.bar import Bar
+from francis.spinner import Spinner
 
 # loads all files in folders and subfolders
 # into dataframe as an audio buffer and a sample rate
@@ -16,18 +18,20 @@ def download(xeno_canto_args, delete_old=False):
 
 def load_into_df(folderpath):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
+    bar = Bar("loading audiofiles into dataframe", max=len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
-        print(f"loading into dataframe: {i + 1}/{len(filepaths)}")
+        bar.next()
         file_data.append(__get_file_data(path))
-
+    bar.finish()
     return pd.DataFrame(file_data, columns=["id", "label", "audio_buffer"])
 
 
 def load_file_into_df(filepath: str):
-    return pd.DataFrame(
-        [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
-    )
+    with Spinner():
+        return pd.DataFrame(
+            [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
+        )
 
 
 def convert_to_wav(folderpath, delete_old=False):

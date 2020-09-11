@@ -4,13 +4,16 @@
 from francis import split_filter
 from francis import noise_reduction
 from francis import high_pass_filter
+from progress.bar import Bar
 
 
 def process(df):
+    bar2 = Bar("noise reducing and high pass filtering", max=len(df))
     for i, row in df.iterrows():
-        # need to include 22050 because of the way nose_reduction and high_pass_filter process audiodata
+        bar2.next()
         row["audio_buffer"] = noise_reduction.process((row["audio_buffer"], 22050))
         row["audio_buffer"] = high_pass_filter.process((row["audio_buffer"], 22050))
-
+    bar2.finish
+    print()
     df = split_filter.call(df)
     return df
