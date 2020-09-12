@@ -49,15 +49,15 @@ class IOTest(unittest.TestCase):
     def test_save_categories(self):
 
         # make fake h5 file
-        model_df = pd.DataFrame({
-            "weights": [i for i in range(100)]
-        })
+        model_df = pd.DataFrame({"weights": [i for i in range(100)]})
         model_df.to_hdf("test/fixtures/save_categories/test.h5", "some_weights")
-        
+
         expected_list = np.string_(["CommonBlackbird", "EurasianRobin", "Wren"])
         label_df = pd.DataFrame({"label": expected_list})
-        
-        result_list = io.save_categories("test/fixtures/save_categories/test.h5", label_df)
+
+        result_list = io.save_categories(
+            "test/fixtures/save_categories/test.h5", label_df
+        )
 
         np.testing.assert_array_equal(result_list, expected_list)
 

@@ -60,15 +60,15 @@ def load_df(folderpath: str):
 def save_categories(filepath: str, df):
     categories_list = np.string_(df["label"].unique().tolist())
 
-    with h5py.File(filepath, 'w') as hf:
-        hf.create_dataset("categories",  data=categories_list)
+    with h5py.File(filepath, "w") as hf:
+        hf.create_dataset("categories", data=categories_list)
 
     return categories_list
 
 
 def load_categories(filepath):
-    with h5py.File(filepath, 'r') as hf:
-        return __list_to_utf8(np.array(hf['categories']).tolist())
+    with h5py.File(filepath, "r") as hf:
+        return __list_to_utf8(np.array(hf["categories"]).tolist())
 
 
 def convert_to_wav(folderpath, delete_old=False):
@@ -112,4 +112,4 @@ def __foldername(filepath):
 
 
 def __list_to_utf8(string_list: list) -> list:
-    return [string.decode('utf8') for string in string_list]
+    return [string.decode("utf8") for string in string_list]
