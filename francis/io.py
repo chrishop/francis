@@ -7,6 +7,7 @@ from pydub import AudioSegment
 import numpy as np
 import json
 import math
+import h5py
 
 # loads all files in folders and subfolders
 # into dataframe as an audio buffer and a sample rate
@@ -57,15 +58,17 @@ def load_df(folderpath: str):
 
 
 def save_categories(filepath: str, df):
-    data = np.unique(df["label"].to_numpy()).tolist()
+    categories_list = np.string_(df["label"].unique().tolist())
 
-    with open(filepath, "w") as json_file:
-        json.dump(data, json_file)
+    with h5py.File(filepath, 'w') as hf:
+        hf.create_dataset("categories",  data=categories_list)
+
+    return categories_list
 
 
 def load_categories(filepath):
-    with open(filepath, "r") as json_file:
-        return json.load(json_file)
+    with h5py.File(filepath, 'r') as hf:
+        return __list_to_utf8(np.array(hf['categories']).tolist())
 
 
 def convert_to_wav(folderpath, delete_old=False):
@@ -106,3 +109,7 @@ def __filename(filepath):
 
 def __foldername(filepath):
     return filepath.split("/")[-2]
+
+
+def __list_to_utf8(string_list: list) -> list:
+    return [string.decode('utf8') for string in string_list]
