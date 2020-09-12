@@ -113,3 +113,13 @@ class ModelAdaptorTest(unittest.TestCase):
 
         # the output is an array with hot encoding of categories
         self.assertEqual(results_in.shape, (2, 128, 216, 1))
+
+    def test_adapt_prediction(self):
+        categories = ["CommonBlackbird", "EurasianRobin", "Wren"]
+        predictions = [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]]
+
+        expected = ["CommonBlackbird", "Wren", "EurasianRobin"]
+
+        result = model_adaptor.adapt_predictions(predictions, categories)
+
+        self.assertEqual(expected, result)

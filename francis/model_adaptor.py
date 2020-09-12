@@ -17,6 +17,14 @@ def adapt_spectrograms(the_dataframe):
     return np.asarray(__shape_spectrograms(the_dataframe["spectrogram"].to_numpy()))
 
 
+def adapt_predictions(predictions, categories):
+    # convert predictions to integer list
+    predictions_as_num = np.argmax(predictions, axis=1)
+
+    # uses categories array to translate number to category name
+    return list(map(lambda x: categories[x], predictions_as_num))
+
+
 def __label(birdnames):
     """
     compresses the label data

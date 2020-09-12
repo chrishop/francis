@@ -2,6 +2,8 @@ import unittest
 import os
 from francis import io
 import glob
+import os
+import pandas as pd
 
 
 class IOTest(unittest.TestCase):
@@ -41,3 +43,37 @@ class IOTest(unittest.TestCase):
 
         # it has a label
         self.assertEqual(the_df.iloc[0].to_list()[1], "CommonBlackbird")
+
+    def test_save_categories(self):
+        fake_df = pd.DataFrame({"label": ["CommonBlackbird", "EurasianRobin", "Wren"]})
+        expected_json = '["CommonBlackbird", "EurasianRobin", "Wren"]'
+
+        io.save_categories("test/fixtures/test_category_save.json", fake_df)
+
+        # load json file
+        with open("test/fixtures/test_category_save.json") as test_file:
+            resulting_json = test_file.read()
+
+            self.assertEqual(resulting_json, expected_json)
+
+        os.remove("test/fixtures/test_category_save.json")
+
+    def test_save_df(self):
+
+        fake_df = pd.DataFrame({"data": [i for i in range(210)]})
+
+        data_files = io.save_df(
+            "test/fixtures/save_dataframe", fake_df, rows_per_file=100
+        )
+
+        # should put leftover rows into their own .parquet file
+        self.assertEqual(len(data_files), 3)
+
+        for elem in data_files:
+            os.remove(elem)
+
+    def test_load_df(self):
+
+        loaded_df = io.load_df("test/fixtures/load_dataframe")
+
+        self.assertEqual(loaded_df["data"].tolist(), [i for i in range(210)])
