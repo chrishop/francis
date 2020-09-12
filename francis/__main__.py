@@ -40,7 +40,7 @@ def train(data_path, data_folder):
         # os.mkdir(os.get_cwd() + "/" + training_folder)
 
         # save df
-        print(f"saving to multiple parquet files in /test_train_data")
+        print("saving to multiple parquet files in /test_train_data")
         io.save_df("test_train_data", the_df, rows_per_file=1000)
 
     else:
@@ -52,9 +52,6 @@ def train(data_path, data_folder):
 
     print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
-
-    print("saving categories to json")
-    io.save_categories("categories.json", the_df)
 
     # adapt to model
     print("adapting model")
@@ -85,6 +82,9 @@ def train(data_path, data_folder):
     # save model
     print("Saving model")
     the_model.save("model.h5")
+
+    print("saving categories in the model")
+    io.save_categories("model.h5", the_df)
 
     print("Done!")
 
@@ -121,7 +121,7 @@ def listen(audio_sample):
     predictions = np.around(the_model.predict(spectrograms))
 
     print("load categories")
-    categories = io.load_categories("categories.json")
+    categories = io.load_categories("model.h5")
 
     print("predictions ..")
     print(model_adaptor.adapt_predictions(predictions, categories))
