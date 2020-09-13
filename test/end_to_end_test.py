@@ -34,7 +34,7 @@ class EndToEndTest(unittest.TestCase):
         pre_df = io.load_into_df(".")
 
         # preprocess stage
-        the_df = preprocess.process(pre_df)
+        the_df = preprocess.process(pre_df, True)
 
         # add spectrogram
         the_df = spectrogram.add_to_df(the_df)
