@@ -56,9 +56,6 @@ def train(data_path, data_folder, show_model, pre_process):
 
     the_df = spectrogram.add_to_df(the_df)
 
-    print("saving categories to json")
-    io.save_categories("categories.json", the_df)
-
     # adapt to model
     print("adapting model")
     train_output, test_output, train_input, test_input = model_adaptor.adapt(
@@ -90,6 +87,9 @@ def train(data_path, data_folder, show_model, pre_process):
     # save model
     print("saving model")
     the_model.save("model.h5")
+
+    print("saving categories in the model")
+    io.save_categories("model.h5", the_df)
 
     print("Done!")
 
@@ -125,7 +125,7 @@ def listen(audio_sample):
     predictions = np.around(the_model.predict(spectrograms))
 
     print("load categories")
-    categories = io.load_categories("categories.json")
+    categories = io.load_categories("model.h5")
 
     print("predictions ..")
     #  print(model_adaptor.adapt_predictions(predictions, categories))
