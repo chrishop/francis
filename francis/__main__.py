@@ -24,7 +24,8 @@ def cli():
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
 @click.option("-s", "--show-model", is_flag=True)
-def train(data_path, data_folder, show_model):
+@click.option("-p", "--pre-process", is_flag=True)
+def train(data_path, data_folder, show_model, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
@@ -37,7 +38,7 @@ def train(data_path, data_folder, show_model):
         pre_df = io.load_into_df(data_path)
 
         # preprocess
-        the_df = preprocess.process(pre_df)
+        the_df = preprocess.process(pre_df, pre_process)
 
         # creating directory to put results in
         # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
