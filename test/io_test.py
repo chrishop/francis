@@ -4,6 +4,8 @@ from francis import io
 import glob
 import os
 import pandas as pd
+import h5py
+import numpy as np
 
 
 class IOTest(unittest.TestCase):
@@ -44,18 +46,21 @@ class IOTest(unittest.TestCase):
         self.assertEqual(the_df.iloc[0].to_list()[1], "CommonBlackbird")
 
     def test_save_categories(self):
-        fake_df = pd.DataFrame({"label": ["CommonBlackbird", "EurasianRobin", "Wren"]})
-        expected_json = '["CommonBlackbird", "EurasianRobin", "Wren"]'
 
-        io.save_categories("test/fixtures/test_category_save.json", fake_df)
+        # make fake h5 file
+        model_df = pd.DataFrame({"weights": [i for i in range(100)]})
+        model_df.to_hdf("test/fixtures/save_categories/test.h5", "some_weights")
 
-        # load json file
-        with open("test/fixtures/test_category_save.json") as test_file:
-            resulting_json = test_file.read()
+        expected_list = np.string_(["CommonBlackbird", "EurasianRobin", "Wren"])
+        label_df = pd.DataFrame({"label": expected_list})
 
-            self.assertEqual(resulting_json, expected_json)
+        result_list = io.save_categories(
+            "test/fixtures/save_categories/test.h5", label_df
+        )
 
-        os.remove("test/fixtures/test_category_save.json")
+        np.testing.assert_array_equal(result_list, expected_list)
+
+        os.remove("test/fixtures/save_categories/test.h5")
 
     def test_save_df(self):
 
@@ -76,3 +81,9 @@ class IOTest(unittest.TestCase):
         loaded_df = io.load_df("test/fixtures/load_dataframe")
 
         self.assertEqual(loaded_df["data"].tolist(), [i for i in range(210)])
+
+    def test_load_categories(self):
+
+        categories = io.load_categories("test/fixtures/load_categories/test.h5")
+
+        self.assertEqual(categories, ["CommonBlackbird", "EurasianRobin", "Wren"])
