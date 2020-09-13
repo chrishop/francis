@@ -7,7 +7,7 @@ from francis import high_pass_filter
 from progress.bar import Bar
 
 
-def process(df, pre_process):
+def process(df, pre_process=True):
     if pre_process:
         bar2 = Bar("noise reducing and high pass filtering", max=len(df))
         for i, row in df.iterrows():
