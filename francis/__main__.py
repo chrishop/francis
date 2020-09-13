@@ -15,7 +15,6 @@ from keras.models import load_model
 import hashlib
 
 
-
 @click.group()
 def cli():
     pass
@@ -24,7 +23,8 @@ def cli():
 @click.command()
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
-def train(data_path, data_folder):
+@click.option("-s", "--show-model", is_flag=True)
+def train(data_path, data_folder, show_model):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
@@ -44,14 +44,11 @@ def train(data_path, data_folder):
         # os.mkdir(os.get_cwd() + "/" + training_folder)
 
         # save df
-        print(f"saving to multiple parquet files in /test_train_data")
-        with Spinner():
-            io.save_df("test_train_data", the_df, rows_per_file=1000)
+        io.save_df("test_train_data", the_df, rows_per_file=1000)
 
     else:
-        with Spinner():
-            print(f"loading from {data_path}")
-            the_df = io.load_df(data_path)
+        print(f"loading from {data_path}")
+        the_df = io.load_df(data_path)
 
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
@@ -74,7 +71,8 @@ def train(data_path, data_folder):
     print(f"making model")
     the_model = model.make(num_birds)
 
-    the_model.summary()
+    if show_model:
+        the_model.summary()
 
     # train model
     print(f"training model")
@@ -119,7 +117,8 @@ def listen(audio_sample):
 
     # load model
     print("loading model")
-    the_model = load_model("model.h5")
+    with Spinner():
+        the_model = load_model("model.h5")
 
     print("predicting ...")
     predictions = np.around(the_model.predict(spectrograms))
@@ -128,7 +127,8 @@ def listen(audio_sample):
     categories = io.load_categories("categories.json")
 
     print("predictions ..")
-    print(model_adaptor.adapt_predictions(predictions, categories))
+    #  print(model_adaptor.adapt_predictions(predictions, categories))
+    print(model_adaptor.summarize_predictions(predictions, categories))
 
 
 def is_file(path):

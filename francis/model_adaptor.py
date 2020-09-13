@@ -25,6 +25,23 @@ def adapt_predictions(predictions, categories):
     return list(map(lambda x: categories[x], predictions_as_num))
 
 
+def summarize_predictions(predictions, categories, seconds=5):
+    # condenses bird predictions to a time stamp for predicted birds only
+    predictions_as_num = np.argmax(predictions, axis=1)
+    bird_prediction = [[] for i in range(len(categories))]
+    output = ""
+
+    for i, prediction in enumerate(predictions_as_num):
+        bird_prediction[prediction].append(i * seconds)
+
+    for bird, times in enumerate(bird_prediction):
+        if times:
+            output += (
+                f"{categories[bird]} predicted at times: {str(times)[1:-1]} seconds\n"
+            )
+    return output[:-1]
+
+
 def __label(birdnames):
     """
     compresses the label data

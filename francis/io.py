@@ -41,10 +41,10 @@ def save_df(folderpath: str, df, rows_per_file=1000):
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-
+    bar = Bar("saving to multiple parquet files in /test_train_data", max=len(split_df))
     files_made = []
     for i, mini_df in enumerate(split_df):
-        filepath = folderpath + f"/train_test_data_{i}.parquet"
+        filepath = folderpath + f"/test_train_data_{i}.parquet"
 
         try:
             mini_df.to_parquet(filepath)
@@ -52,12 +52,14 @@ def save_df(folderpath: str, df, rows_per_file=1000):
         except Exception as e:
             print(e)
             print("oops couldn't handle that one")
-
+        bar.next()
+    bar.finish()
     return files_made
 
 
 def load_df(folderpath: str):
-    return pd.read_parquet(folderpath)
+    with Spinner():
+        return pd.read_parquet(folderpath)
 
 
 def save_categories(filepath: str, df):
