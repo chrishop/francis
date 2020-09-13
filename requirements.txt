@@ -12,3 +12,4 @@ pyarrow
 click
 h5py
 progress
+tables
