@@ -79,13 +79,13 @@ def load_categories(filepath):
 
 
 def load_config() -> dict:
-    with open('francis.cfg') as config_file:
-        return json.load(config_file, indent=4)
+    with open("francis.cfg") as config_file:
+        return json.load(config_file)
 
 
 def save_config(config: dict):
-    with open('francis.cfg', 'w') as config_file:
-        json.dump(config, config_file)
+    with open("francis.cfg", "w") as config_file:
+        json.dump(config, config_file, indent=4)
 
 
 def convert_to_wav(folderpath, delete_old=False):
