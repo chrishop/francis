@@ -8,10 +8,7 @@ def make(num_birds):
     model = Sequential()
     model.add(
         Conv2D(
-            filters=16,
-            kernel_size=(3, 3),
-            input_shape=(128, 216, 1),
-            activation="relu",
+            filters=16, kernel_size=(3, 3), input_shape=(128, 216, 1), activation="relu"
         )
     )
 
@@ -38,9 +35,5 @@ def test(model, input_data, expected_data, verbose=0):
 
 def train(model, input_data, expected_data, batch_size, epochs, verbose=0):
     return model.fit(
-        input_data,
-        expected_data,
-        batch_size=batch_size,
-        epochs=epochs,
-        verbose=verbose,
+        input_data, expected_data, batch_size=batch_size, epochs=epochs, verbose=verbose
     )

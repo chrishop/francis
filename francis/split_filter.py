@@ -6,6 +6,7 @@
 
 import pandas as pd
 import numpy as np
+from progress.bar import Bar
 
 
 def call(df):
@@ -14,6 +15,7 @@ def call(df):
 
 def __split(pre_df):
     labeled = []
+    bar = Bar("splitting audio into 5 second chunks", max=len(pre_df))
     for i, row in pre_df.iterrows():
         split_buffer = __split_buffer(row["audio_buffer"], 22050, 5)
         filtered_buffer = __filter_chunks(
@@ -21,7 +23,8 @@ def __split(pre_df):
         )
         for buffer in filtered_buffer:
             labeled.append((row["label"], buffer))
-
+        bar.next()
+    bar.finish()
     return pd.DataFrame(labeled, columns=["label", "audio_buffer"])
 
 

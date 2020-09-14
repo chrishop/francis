@@ -4,6 +4,8 @@ import pandas as pd
 import os
 import xenocanto
 from pydub import AudioSegment
+from progress.bar import Bar
+from francis.spinner import Spinner
 import numpy as np
 import json
 import math
@@ -20,28 +22,30 @@ def download(xeno_canto_args, delete_old=False):
 
 def load_into_df(folderpath):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
+    bar = Bar("loading audiofiles into dataframe", max=len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
-        print(f"loading into dataframe: {i + 1}/{len(filepaths)}")
+        bar.next()
         file_data.append(__get_file_data(path))
-
+    bar.finish()
     return pd.DataFrame(file_data, columns=["id", "label", "audio_buffer"])
 
 
 def load_file_into_df(filepath: str):
-    return pd.DataFrame(
-        [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
-    )
+    with Spinner():
+        return pd.DataFrame(
+            [__get_file_data(filepath)], columns=["id", "label", "audio_buffer"]
+        )
 
 
 def save_df(folderpath: str, df, rows_per_file=1000):
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-
+    bar = Bar("saving to multiple parquet files in /test_train_data", max=len(split_df))
     files_made = []
     for i, mini_df in enumerate(split_df):
-        filepath = folderpath + f"/train_test_data_{i}.parquet"
+        filepath = folderpath + f"/test_train_data_{i}.parquet"
 
         try:
             mini_df.to_parquet(filepath)
@@ -49,12 +53,14 @@ def save_df(folderpath: str, df, rows_per_file=1000):
         except Exception as e:
             print(e)
             print("oops couldn't handle that one")
-
+        bar.next()
+    bar.finish()
     return files_made
 
 
 def load_df(folderpath: str):
-    return pd.read_parquet(folderpath)
+    with Spinner():
+        return pd.read_parquet(folderpath)
 
 
 def save_categories(filepath: str, df):

@@ -1,14 +1,18 @@
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
+
 from francis import io
 from francis import preprocess
 from francis import spectrogram
 from francis import model_adaptor
 from francis import model
+from francis.spinner import Spinner
 import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
 import hashlib
-import os
 
 
 @click.group()
@@ -19,7 +23,9 @@ def cli():
 @click.command()
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
-def train(data_path, data_folder):
+@click.option("-s", "--show-model", is_flag=True)
+@click.option("-p", "--pre-process", is_flag=True)
+def train(data_path, data_folder, show_model, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
@@ -32,15 +38,13 @@ def train(data_path, data_folder):
         pre_df = io.load_into_df(data_path)
 
         # preprocess
-        print("preprocessing")
-        the_df = preprocess.process(pre_df)
+        the_df = preprocess.process(pre_df, pre_process)
 
         # creating directory to put results in
         # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
         # os.mkdir(os.get_cwd() + "/" + training_folder)
 
         # save df
-        print("saving to multiple parquet files in /test_train_data")
         io.save_df("test_train_data", the_df, rows_per_file=1000)
 
     else:
@@ -50,7 +54,6 @@ def train(data_path, data_folder):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
-    print("adding spectrograms")
     the_df = spectrogram.add_to_df(the_df)
 
     # adapt to model
@@ -63,24 +66,26 @@ def train(data_path, data_folder):
     print(f"about to train on {samples} samples!")
 
     # make model
-    print("making model")
+    print(f"making model")
     the_model = model.make(num_birds)
 
-    the_model.summary()
+    if show_model:
+        the_model.summary()
 
     # train model
-    print("training model")
+    print(f"training model")
     model.train(
         the_model, train_input, train_output, batch_size=32, epochs=5, verbose=1
     )
 
     # test model
     print("testing model")
-    pass_rate = model.test(the_model, test_input, test_output, verbose=0)
-    print(pass_rate[1] * 100)
+    with Spinner():
+        pass_rate = model.test(the_model, test_input, test_output, verbose=0)
+    print(f"{pass_rate[1] * 100} %")
 
     # save model
-    print("Saving model")
+    print("saving model")
     the_model.save("model.h5")
 
     print("saving categories in the model")
@@ -98,24 +103,23 @@ def listen(audio_sample):
     """
 
     # read into dataframe
-    print("load into df")
+    print("loading file into dataframe")
     pre_df = io.load_file_into_df(audio_sample)
 
     # preprocess
-    print("preprocess")
     the_df = preprocess.process(pre_df)
 
     # add spectrogram
-    print("adding spectrogram")
     the_df = spectrogram.add_to_df(the_df)
 
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
-    print(f"there are {spectrograms.shape} spectrograms")
+    # print(f"there are {spectrograms.shape} spectrograms") commented out because progress bar shows number of spectograms anyway
 
     # load model
     print("loading model")
-    the_model = load_model("model.h5")
+    with Spinner():
+        the_model = load_model("model.h5")
 
     print("predicting ...")
     predictions = np.around(the_model.predict(spectrograms))
@@ -124,7 +128,8 @@ def listen(audio_sample):
     categories = io.load_categories("model.h5")
 
     print("predictions ..")
-    print(model_adaptor.adapt_predictions(predictions, categories))
+    #  print(model_adaptor.adapt_predictions(predictions, categories))
+    print(model_adaptor.summarize_predictions(predictions, categories))
 
 
 def is_file(path):

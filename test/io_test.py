@@ -24,8 +24,7 @@ class IOTest(unittest.TestCase):
 
         # it fetches from both subfolders
         self.assertEqual(
-            the_df["label"].to_list(),
-            ["CommonBlackbird", "CommonWoodPidgeon"],
+            the_df["label"].to_list(), ["CommonBlackbird", "CommonWoodPidgeon"]
         )
 
     def test_load_file(self):
