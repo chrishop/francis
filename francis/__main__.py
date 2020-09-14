@@ -8,6 +8,7 @@ from francis import spectrogram
 from francis import model_adaptor
 from francis import model
 from francis.spinner import Spinner
+from francis.default_config import DEFAULT_CONFIG
 import pandas as pd
 import numpy as np
 import click
@@ -21,6 +22,17 @@ def cli():
 
 
 @click.command()
+def init():
+    """produces a default config needed to use francis
+
+    most of the time doesn't need to be changed
+    """
+
+    io.save_config(DEFAULT_CONFIG)
+    print("saved config as 'francis.cfg' to the current folder")
+
+
+@click.command()
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
 @click.option("-s", "--show-model", is_flag=True)
@@ -29,12 +41,24 @@ def train(data_path, data_folder, show_model, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
-    or a .parquet file from a previous training session
+    or a folder of .parquet files from a previous training session
     """
+
+    # try loading config
+    try:
+        CONFIG = io.load_config()
+    except IOError:
+        print("I can't find a francis.cfg file in this directory!")
+        print("try 'francis init' to get a new config")
+        exit(1)
+    except ValueError:
+        print("I can't read the francis.cfg file!")
+        print("Is it formatted correctly?")
+        exit(1)
 
     # load into df
     if not data_folder:
-        io.convert_to_wav(data_path, delete_old=True)
+        io.convert_to_wav(data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"])
         pre_df = io.load_into_df(data_path)
 
         # preprocess
@@ -138,6 +162,7 @@ def is_file(path):
     return False
 
 
+cli.add_command(init)
 cli.add_command(train)
 cli.add_command(listen)
 
