@@ -1,6 +1,7 @@
 import unittest
 import pandas as pd
 import numpy as np
+from francis import split_filter
 from francis import preprocess
 import librosa
 
@@ -31,9 +32,10 @@ class SplitFilterTest(unittest.TestCase):
                 "audio_buffer": [blackbird_audio, sparrow_audio, mixed_audio],
             }
         )
-
-        result_df = preprocess.process(pre_df)
-
+        
+        pre_df = preprocess.process(pre_df, True)
+        result_df = split_filter.call(pre_df)
+        
         print(result_df)
 
         # there are 4 results
