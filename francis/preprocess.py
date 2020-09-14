@@ -11,8 +11,12 @@ def process(df, sample_rate, pre_process=True):
         bar2 = Bar("noise reducing and high pass filtering", max=len(df))
         for i, row in df.iterrows():
             bar2.next()
-            row["audio_buffer"] = noise_reduction.process((row["audio_buffer"], sample_rate))
-            row["audio_buffer"] = high_pass_filter.process((row["audio_buffer"], sample_rate))
+            row["audio_buffer"] = noise_reduction.process(
+                (row["audio_buffer"], sample_rate)
+            )
+            row["audio_buffer"] = high_pass_filter.process(
+                (row["audio_buffer"], sample_rate)
+            )
         bar2.finish()
         print()
     return df

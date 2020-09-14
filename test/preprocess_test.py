@@ -32,10 +32,10 @@ class SplitFilterTest(unittest.TestCase):
                 "audio_buffer": [blackbird_audio, sparrow_audio, mixed_audio],
             }
         )
-        
+
         pre_df = preprocess.process(pre_df, True)
         result_df = split_filter.call(pre_df)
-        
+
         print(result_df)
 
         # there are 4 results

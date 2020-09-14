@@ -64,7 +64,9 @@ def train(data_path, data_folder, show_model, pre_process):
         pre_df = io.load_into_df(data_path)
 
         # preprocess
-        the_df = preprocess.process(pre_df, CONFIG["SAMPLE_RATE"] ,CONFIG["PREPROCESSING_ON"])
+        the_df = preprocess.process(
+            pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+        )
 
         # split filter
         the_df = split_filter.call(
@@ -102,7 +104,7 @@ def train(data_path, data_folder, show_model, pre_process):
 
     # make model
     print("making model")
-    the_model = model.mak\e(num_birds)
+    the_model = model.make(num_birds)
 
     if CONFIG["SHOW_MODEL"]:
         the_model.summary()
