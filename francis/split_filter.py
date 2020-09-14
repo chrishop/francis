@@ -17,21 +17,28 @@ def __split(pre_df):
     labeled = []
     bar = Bar("splitting audio into 5 second chunks", max=len(pre_df))
     for i, row in pre_df.iterrows():
-        split_buffer = __split_buffer(row["audio_buffer"], 22050, 5)
-        filtered_buffer = __filter_chunks(
-            split_buffer, type="quartile", cutoff="default"
-        )
-        for buffer in filtered_buffer:
-            labeled.append((row["label"], buffer))
-        bar.next()
+        bar = Bar("splitting audio into 5 second chunks", max=len(pre_df))
+        try:
+            split_buffer = __split_buffer(row["audio_buffer"], 22050, 5)
+            filtered_buffer = __filter_chunks(
+                split_buffer, type="quartile", cutoff="default"
+            )
+            for buffer in filtered_buffer:
+                labeled.append((row["label"], buffer))
+
+            bar.next()
+        except ZeroDivisionError:
+            print("oops that audio was less than 5s")
+
     bar.finish()
+
     return pd.DataFrame(labeled, columns=["label", "audio_buffer"])
 
 
 def __split_buffer(buffer, sample_rate, seconds):
     chunk_size = sample_rate * seconds
-    chunk_number = np.shape(buffer)[0] // chunk_size
-    cutoff = chunk_size * chunk_number
+    chunk_number = int(np.shape(buffer)[0] // chunk_size)
+    cutoff = int(chunk_size * chunk_number)
 
     return np.split(buffer[:cutoff], chunk_number)
 
