@@ -1,11 +1,9 @@
 import os
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
-
 from francis import io
 from francis import preprocess
 from francis import spectrogram
 from francis import model_adaptor
+from francis import split_filter
 from francis import model
 from francis.spinner import Spinner
 from francis.default_config import DEFAULT_CONFIG
@@ -14,6 +12,8 @@ import numpy as np
 import click
 from keras.models import load_model
 import hashlib
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
 
 
 @click.group()
@@ -46,7 +46,9 @@ def train(data_path, data_folder, show_model, pre_process):
 
     # try loading config
     try:
-        CONFIG = io.load_config()
+        CONFIG = {**DEFAULT_CONFIG, **io.load_config()}
+        CONFIG["PREPROCESSING_ON"] = pre_process
+        CONFIG["SHOW_MODEL"] = show_model
     except IOError:
         print("I can't find a francis.cfg file in this directory!")
         print("try 'francis init' to get a new config")
@@ -62,7 +64,16 @@ def train(data_path, data_folder, show_model, pre_process):
         pre_df = io.load_into_df(data_path)
 
         # preprocess
-        the_df = preprocess.process(pre_df, pre_process)
+        the_df = preprocess.process(pre_df, CONFIG["SAMPLE_RATE"] ,CONFIG["PREPROCESSING_ON"])
+
+        # split filter
+        the_df = split_filter.call(
+            the_df,
+            CONFIG["SAMPLE_RATE"],
+            CONFIG["SAMPLE_SECONDS"],
+            CONFIG["SPLIT_FILTER_TYPE"],
+            CONFIG["SPLIT_FILTER_CUTOFF"],
+        )
 
         # creating directory to put results in
         # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
@@ -83,21 +94,21 @@ def train(data_path, data_folder, show_model, pre_process):
     # adapt to model
     print("adapting model")
     train_output, test_output, train_input, test_input = model_adaptor.adapt(
-        the_df, test_size=0.2
+        the_df, test_size=CONFIG["TRAIN_TEST_SPLIT"]
     )
 
     samples = train_output.shape
     print(f"about to train on {samples} samples!")
 
     # make model
-    print(f"making model")
-    the_model = model.make(num_birds)
+    print("making model")
+    the_model = model.mak\e(num_birds)
 
-    if show_model:
+    if CONFIG["SHOW_MODEL"]:
         the_model.summary()
 
     # train model
-    print(f"training model")
+    print("training model")
     model.train(
         the_model, train_input, train_output, batch_size=32, epochs=5, verbose=1
     )
@@ -138,7 +149,6 @@ def listen(audio_sample):
 
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
-    # print(f"there are {spectrograms.shape} spectrograms") commented out because progress bar shows number of spectograms anyway
 
     # load model
     print("loading model")
