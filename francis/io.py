@@ -11,6 +11,7 @@ import json
 import math
 import h5py
 
+
 # loads all files in folders and subfolders
 # into dataframe as an audio buffer and a sample rate
 
@@ -50,9 +51,9 @@ def save_df(folderpath: str, df, rows_per_file=1000):
         try:
             mini_df.to_parquet(filepath)
             files_made.append(filepath)
-        except Exception as e:
-            print(e)
-            print("oops couldn't handle that one")
+        except Exception:
+            pass
+            # should put logging here
         bar.next()
     bar.finish()
     return files_made
@@ -75,6 +76,16 @@ def save_categories(filepath: str, df):
 def load_categories(filepath):
     with h5py.File(filepath, "r") as hf:
         return __list_to_utf8(np.array(hf["categories"]).tolist())
+
+
+def load_config() -> dict:
+    with open("francis.cfg") as config_file:
+        return json.load(config_file)
+
+
+def save_config(config: dict):
+    with open("francis.cfg", "w") as config_file:
+        json.dump(config, config_file, indent=4)
 
 
 def convert_to_wav(folderpath, delete_old=False):

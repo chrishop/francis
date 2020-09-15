@@ -1,23 +1,35 @@
 import os
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
-
 from francis import io
 from francis import preprocess
 from francis import spectrogram
 from francis import model_adaptor
+from francis import split_filter
 from francis import model
 from francis.spinner import Spinner
+from francis.default_config import DEFAULT_CONFIG
 import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
 import hashlib
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
+
 
 @click.group()
 def cli():
     pass
+
+
+@click.command()
+def init():
+    """produces a default config needed to use francis
+
+    most of the time doesn't need to be changed
+    """
+
+    io.save_config(DEFAULT_CONFIG)
+    print("saved config as 'francis.cfg' to the current folder")
 
 
 @click.command()
@@ -29,16 +41,42 @@ def train(data_path, data_folder, show_model, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
-    or a .parquet file from a previous training session
+    or a folder of .parquet files from a previous training session
     """
+
+    # try loading config
+    try:
+        CONFIG = {**DEFAULT_CONFIG, **io.load_config()}
+        CONFIG["PREPROCESSING_ON"] = pre_process
+        CONFIG["SHOW_MODEL"] = show_model
+    except IOError:
+        print("Can't find a francis.cfg file in this directory!")
+        print("Defaulting back to default config")
+        print("use 'francis init' create a default config")
+        exit(1)
+    except ValueError:
+        print("I can't read the francis.cfg file!")
+        print("Is it formatted correctly?")
+        exit(1)
 
     # load into df
     if not data_folder:
-        io.convert_to_wav(data_path, delete_old=True)
+        io.convert_to_wav(data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"])
         pre_df = io.load_into_df(data_path)
 
         # preprocess
-        the_df = preprocess.process(pre_df, pre_process)
+        the_df = preprocess.process(
+            pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+        )
+
+        # split filter
+        the_df = split_filter.call(
+            the_df,
+            CONFIG["SAMPLE_RATE"],
+            CONFIG["SAMPLE_SECONDS"],
+            CONFIG["SPLIT_FILTER_TYPE"],
+            CONFIG["SPLIT_FILTER_CUTOFF"],
+        )
 
         # creating directory to put results in
         # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
@@ -59,21 +97,21 @@ def train(data_path, data_folder, show_model, pre_process):
     # adapt to model
     print("adapting model")
     train_output, test_output, train_input, test_input = model_adaptor.adapt(
-        the_df, test_size=0.2
+        the_df, test_size=CONFIG["TRAIN_TEST_SPLIT"]
     )
 
     samples = train_output.shape
     print(f"about to train on {samples} samples!")
 
     # make model
-    print(f"making model")
+    print("making model")
     the_model = model.make(num_birds)
 
-    if show_model:
+    if CONFIG["SHOW_MODEL"]:
         the_model.summary()
 
     # train model
-    print(f"training model")
+    print("training model")
     model.train(
         the_model, train_input, train_output, batch_size=32, epochs=5, verbose=1
     )
@@ -114,7 +152,6 @@ def listen(audio_sample):
 
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
-    # print(f"there are {spectrograms.shape} spectrograms") commented out because progress bar shows number of spectograms anyway
 
     # load model
     print("loading model")
@@ -138,6 +175,7 @@ def is_file(path):
     return False
 
 
+cli.add_command(init)
 cli.add_command(train)
 cli.add_command(listen)
 

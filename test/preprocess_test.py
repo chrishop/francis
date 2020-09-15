@@ -1,6 +1,7 @@
 import unittest
 import pandas as pd
 import numpy as np
+from francis import split_filter
 from francis import preprocess
 import librosa
 
@@ -32,9 +33,8 @@ class SplitFilterTest(unittest.TestCase):
             }
         )
 
-        result_df = preprocess.process(pre_df)
-
-        print(result_df)
+        pre_df = preprocess.process(pre_df, 22050, True)
+        result_df = split_filter.call(pre_df)
 
         # there are 4 results
         self.assertEqual(len(result_df.index), 4)
