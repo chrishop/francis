@@ -25,7 +25,7 @@ def download(xeno_canto_args, delete_old=False):
 
 def load_into_df(folderpath):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
-    bar = Bar("loading audiofiles into dataframe \t\t", max=len(filepaths))
+    bar = Bar("loading audiofiles... \t\t\t\t\t", max=len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
         bar.next()
@@ -41,11 +41,11 @@ def load_file_into_df(filepath: str):
         )
 
 
-def save_df(folderpath: str, df, rows_per_file=1000):
+def save_df(folderpath: str, df, rows_per_file=1000, results_folder=""):
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-    bar = Bar("saving to multiple parquet files in /test_train_data", max=len(split_df))
+    bar = Bar(f"saving audio samples to {results_folder}/test_train_data...", max=len(split_df))
     files_made = []
     for i, mini_df in enumerate(split_df):
         filepath = folderpath + f"/test_train_data_{i}.parquet"
@@ -85,8 +85,8 @@ def load_config() -> dict:
         return json.load(config_file)
 
 
-def save_config(config: dict):
-    with open("francis.cfg", "w") as config_file:
+def save_config(config: dict, filepath="francis.cfg"):
+    with open(filepath, "w") as config_file:
         json.dump(config, config_file, indent=4)
 
 

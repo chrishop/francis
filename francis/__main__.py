@@ -91,8 +91,7 @@ def train(data_path, data_folder, verbose, pre_process):
             exit(1)
 
         # save df
-        print(f"saving data samples to {results_folder}/test_train_data")
-        io.save_df(f"{results_folder}/test_train_data", the_df, rows_per_file=1000)
+        io.save_df(f"{results_folder}/test_train_data", the_df, rows_per_file=1000, results_folder=results_folder)
 
     else:
         print(f"loading from {data_path}")
@@ -141,6 +140,7 @@ def train(data_path, data_folder, verbose, pre_process):
     print(f"saving model to {results_folder}/model.h5")
     the_model.save(f"{results_folder}/model.h5")
     io.save_categories(f"{results_folder}/model.h5", the_df)
+    io.save_config(CONFIG, f"{results_folder}/francis.cfg")
 
     print("✨Done!✨")
 

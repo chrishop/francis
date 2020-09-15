@@ -17,9 +17,8 @@ def call(
 
 def __split(pre_df, sample_rate, second_split, split_type, split_cutoff):
     labeled = []
-    bar = Bar("splitting audio into 5 second chunks", max=len(pre_df))
+    bar = Bar("chunking and filtering audio... \t\t\t", max=len(pre_df))
     for i, row in pre_df.iterrows():
-        bar = Bar("splitting audio into 5 second chunks", max=len(pre_df))
         try:
             split_buffer = __split_buffer(
                 row["audio_buffer"], sample_rate, second_split
