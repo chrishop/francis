@@ -10,6 +10,8 @@ import numpy as np
 import json
 import math
 import h5py
+import string
+import random
 
 
 # loads all files in folders and subfolders
@@ -23,7 +25,7 @@ def download(xeno_canto_args, delete_old=False):
 
 def load_into_df(folderpath):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
-    bar = Bar("loading audiofiles into dataframe", max=len(filepaths))
+    bar = Bar("loading audiofiles into dataframe \t\t", max=len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
         bar.next()
@@ -106,6 +108,11 @@ def convert_to_wav(folderpath, delete_old=False):
         converted.append(__wav_path(path))
 
     return converted
+
+
+def results_foldername():
+    alpha = list(string.ascii_lowercase)
+    return "".join([random.choice(alpha) for _ in range(5)]) + "_results"
 
 
 def __get_file_data(path: str) -> tuple:

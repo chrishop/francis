@@ -6,4 +6,6 @@ DEFAULT_CONFIG = {
     "SPLIT_FILTER_TYPE": "quartile",
     "SPLIT_FILTER_CUTOFF": 0.15,
     "TRAIN_TEST_SPLIT": 0.2,
+    "BATCH_SIZE": 32,
+    "EPOCHS": 5
 }

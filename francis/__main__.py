@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
-import hashlib
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
 
@@ -61,8 +60,6 @@ def train(data_path, data_folder, verbose, pre_process):
     # cli overrides config
     CONFIG["PREPROCESSING_ON"] = pre_process
     CONFIG["VERBOSE"] = verbose
-    
-    
 
     # load into df
     if not data_folder:
@@ -84,11 +81,18 @@ def train(data_path, data_folder, verbose, pre_process):
         )
 
         # creating directory to put results in
-        # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
-        # os.mkdir(os.get_cwd() + "/" + training_folder)
+        # put a copy of the config the train_test_data and the model
+        results_folder = io.results_foldername()
+        try:
+            os.mkdir(os.getcwd() + "/" + results_folder)
+        except FileExistsError:
+            print("folder already exists, try running again")
+            print("it shouldn't happen")
+            exit(1)
 
         # save df
-        io.save_df("test_train_data", the_df, rows_per_file=1000)
+        print(f"saving data samples to {results_folder}/test_train_data")
+        io.save_df(f"{results_folder}/test_train_data", the_df, rows_per_file=1000)
 
     else:
         print(f"loading from {data_path}")
@@ -109,7 +113,6 @@ def train(data_path, data_folder, verbose, pre_process):
     print(f"about to train on {samples} samples!")
 
     # make model
-    print("making model")
     the_model = model.make(num_birds)
 
     if CONFIG["VERBOSE"]:
@@ -118,23 +121,28 @@ def train(data_path, data_folder, verbose, pre_process):
     # train model
     print("training model")
     model.train(
-        the_model, train_input, train_output, batch_size=32, epochs=5, verbose=bool_to_int(CONFIG["VERBOSE"])
+        the_model,
+        train_input,
+        train_output,
+        batch_size=CONFIG["BATCH_SIZE"],
+        epochs=CONFIG["EPOCHS"],
+        verbose=bool_to_int(CONFIG["VERBOSE"]),
     )
 
     # test model
     print("testing model")
     with Spinner():
-        pass_rate = model.test(the_model, test_input, test_output, verbose=bool_to_int(CONFIG["VERBOSE"]))
-    print(f"{pass_rate[1] * 100} %")
+        pass_rate = model.test(
+            the_model, test_input, test_output, verbose=bool_to_int(CONFIG["VERBOSE"])
+        )
+    print(f"Accuracy: {pass_rate[1] * 100} %")
 
     # save model
-    print("saving model")
-    the_model.save("model.h5")
+    print(f"saving model to {results_folder}/model.h5")
+    the_model.save(f"{results_folder}/model.h5")
+    io.save_categories(f"{results_folder}/model.h5", the_df)
 
-    print("saving categories in the model")
-    io.save_categories("model.h5", the_df)
-
-    print("Done!")
+    print("✨Done!✨")
 
 
 @click.command()
@@ -174,16 +182,11 @@ def listen(audio_sample):
     print(model_adaptor.summarize_predictions(predictions, categories))
 
 
-def is_file(path):
-    if "." in path:
-        return True
-    return False
-
-
 def bool_to_int(boolean: bool) -> int:
     if boolean:
         return 1
     return 0
+
 
 cli.add_command(init)
 cli.add_command(train)
