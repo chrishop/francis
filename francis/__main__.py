@@ -7,11 +7,9 @@ from francis import split_filter
 from francis import model
 from francis.spinner import Spinner
 from francis.default_config import DEFAULT_CONFIG
-import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
-import hashlib
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
 
@@ -35,29 +33,32 @@ def init():
 @click.command()
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
-@click.option("-s", "--show-model", is_flag=True)
+@click.option("-v", "--verbose", is_flag=True)
 @click.option("-p", "--pre-process", is_flag=True)
-def train(data_path, data_folder, show_model, pre_process):
+def train(data_path, data_folder, verbose, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
     or a folder of .parquet files from a previous training session
     """
+    CONFIG = {}
 
     # try loading config
     try:
         CONFIG = {**DEFAULT_CONFIG, **io.load_config()}
-        CONFIG["PREPROCESSING_ON"] = pre_process
-        CONFIG["SHOW_MODEL"] = show_model
     except IOError:
         print("Can't find a francis.cfg file in this directory!")
         print("Defaulting back to default config")
         print("use 'francis init' create a default config")
-        exit(1)
+        CONFIG = DEFAULT_CONFIG
     except ValueError:
         print("I can't read the francis.cfg file!")
         print("Is it formatted correctly?")
         exit(1)
+
+    # cli overrides config
+    CONFIG["PREPROCESSING_ON"] = pre_process
+    CONFIG["VERBOSE"] = verbose
 
     # load into df
     if not data_folder:
@@ -79,11 +80,23 @@ def train(data_path, data_folder, show_model, pre_process):
         )
 
         # creating directory to put results in
-        # training_folder = hashlib.sha1("my message".encode("UTF-8")).hexdigest()[:5] + "_train_test_data"
-        # os.mkdir(os.get_cwd() + "/" + training_folder)
+        # put a copy of the config the train_test_data and the model
+        results_folder = io.results_foldername()
+        try:
+            os.mkdir(os.getcwd() + "/" + results_folder)
+            os.mkdir(f"{os.getcwd()}/{results_folder}/test_train_data")
+        except FileExistsError:
+            print("folder already exists, try running again")
+            print("it shouldn't happen")
+            exit(1)
 
         # save df
-        io.save_df("test_train_data", the_df, rows_per_file=1000)
+        io.save_df(
+            f"{results_folder}/test_train_data",
+            the_df,
+            rows_per_file=1000,
+            results_folder=results_folder,
+        )
 
     else:
         print(f"loading from {data_path}")
@@ -100,36 +113,46 @@ def train(data_path, data_folder, show_model, pre_process):
         the_df, test_size=CONFIG["TRAIN_TEST_SPLIT"]
     )
 
-    samples = train_output.shape
-    print(f"about to train on {samples} samples!")
+    total_samples = len(the_df.index)
+    training_samples = train_output.shape[0]
+    testing_samples = test_output.shape[0]
+    categories = train_output.shape[1]
 
+    print(f"total samples: {total_samples} with {categories} categories")
+    print(f"about to train on {training_samples} samples!")
+    print(f"then test on {testing_samples} samples!")
     # make model
-    print("making model")
     the_model = model.make(num_birds)
 
-    if CONFIG["SHOW_MODEL"]:
+    if CONFIG["VERBOSE"]:
         the_model.summary()
 
     # train model
     print("training model")
     model.train(
-        the_model, train_input, train_output, batch_size=32, epochs=5, verbose=1
+        the_model,
+        train_input,
+        train_output,
+        batch_size=CONFIG["BATCH_SIZE"],
+        epochs=CONFIG["EPOCHS"],
+        verbose=bool_to_int(CONFIG["VERBOSE"]),
     )
 
     # test model
     print("testing model")
     with Spinner():
-        pass_rate = model.test(the_model, test_input, test_output, verbose=0)
-    print(f"{pass_rate[1] * 100} %")
+        pass_rate = model.test(
+            the_model, test_input, test_output, verbose=bool_to_int(CONFIG["VERBOSE"])
+        )
+    print(f"Accuracy: {pass_rate[1] * 100} %")
 
     # save model
-    print("saving model")
-    the_model.save("model.h5")
+    print(f"saving model to {results_folder}/model.h5")
+    the_model.save(f"{results_folder}/model.h5")
+    io.save_categories(f"{results_folder}/model.h5", the_df)
+    io.save_config(CONFIG, f"{results_folder}/francis.cfg")
 
-    print("saving categories in the model")
-    io.save_categories("model.h5", the_df)
-
-    print("Done!")
+    print("✨Done!✨")
 
 
 @click.command()
@@ -169,10 +192,10 @@ def listen(audio_sample):
     print(model_adaptor.summarize_predictions(predictions, categories))
 
 
-def is_file(path):
-    if "." in path:
-        return True
-    return False
+def bool_to_int(boolean: bool) -> int:
+    if boolean:
+        return 1
+    return 0
 
 
 cli.add_command(init)

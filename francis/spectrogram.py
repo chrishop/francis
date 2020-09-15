@@ -5,7 +5,7 @@ from progress.bar import Bar
 
 
 def add_to_df(the_df):
-    bar = Bar("adding spectrograms", max=len(the_df))
+    bar = Bar("adding spectrograms \t\t\t\t\t", max=len(the_df))
     spectrogram_column_data = []
     for i, row in the_df.iterrows():
         spectrogram_column_data.append(__create_spectrogram(row["audio_buffer"]))
