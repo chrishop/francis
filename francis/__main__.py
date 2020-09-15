@@ -90,7 +90,12 @@ def train(data_path, data_folder, verbose, pre_process):
             exit(1)
 
         # save df
-        io.save_df(f"{results_folder}/test_train_data", the_df, rows_per_file=1000, results_folder=results_folder)
+        io.save_df(
+            f"{results_folder}/test_train_data",
+            the_df,
+            rows_per_file=1000,
+            results_folder=results_folder,
+        )
 
     else:
         print(f"loading from {data_path}")
