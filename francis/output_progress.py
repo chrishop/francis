@@ -1,6 +1,7 @@
 import sys
 import time
 import threading
+from progress.bar import Bar
 
 
 class Spinner:
@@ -35,3 +36,7 @@ class Spinner:
         time.sleep(self.delay)
         if exception is not None:
             return False
+
+
+def default_bar(text, bar_length):
+    return Bar(text, max=bar_length, fill="*", suffix='%(index)d/%(max)d')

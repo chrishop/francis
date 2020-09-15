@@ -5,7 +5,8 @@ import os
 import xenocanto
 from pydub import AudioSegment
 from progress.bar import Bar
-from francis.spinner import Spinner
+from francis.output_progress import Spinner
+from francis.output_progress import default_bar
 import numpy as np
 import json
 import math
@@ -20,12 +21,14 @@ import random
 
 def download(xeno_canto_args, delete_old=False):
     xenocanto.download(xeno_canto_args)
-    return convert_to_wav(os.getcwd() + "/dataset/audio", delete_old=delete_old)
+    return convert_to_wav(
+        os.getcwd() + "/dataset/audio", delete_old=delete_old
+    )
 
 
-def load_into_df(folderpath):
+def load_into_df(folderpath, bar_config=default_bar):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
-    bar = Bar("loading audiofiles... \t\t\t\t\t", max=len(filepaths))
+    bar = bar_config("loading audiofiles... \t\t\t\t\t", len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
         bar.next()
@@ -41,13 +44,15 @@ def load_file_into_df(filepath: str):
         )
 
 
-def save_df(folderpath: str, df, rows_per_file=1000, results_folder=""):
+def save_df(
+    folderpath: str, df, bar_config=default_bar, rows_per_file=1000, results_folder=""
+):
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-    bar = Bar(
+    bar = bar_config(
         f"saving audio samples to {results_folder}/test_train_data...",
-        max=len(split_df),
+        len(split_df),
     )
     files_made = []
     for i, mini_df in enumerate(split_df):
@@ -93,9 +98,9 @@ def save_config(config: dict, filepath="francis.cfg"):
         json.dump(config, config_file, indent=4)
 
 
-def convert_to_wav(folderpath, delete_old=False):
+def convert_to_wav(folderpath, bar_config=default_bar, delete_old=False):
     filepaths = glob.glob(folderpath + "/**/*.mp3", recursive=True)
-    bar = Bar("converting mp3 to wav...\t\t\t\t", max=len(filepaths))
+    bar = bar_config("converting mp3 to wav...\t\t\t\t", len(filepaths))
     converted = []
     for i, path in enumerate(filepaths):
         # reads mp3 and writes wav

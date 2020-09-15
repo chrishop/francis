@@ -1,17 +1,22 @@
 import os
+
+os.environ[
+    "TF_CPP_MIN_LOG_LEVEL"
+] = "3"  # disables tensorflow debugging output (this line needs to be before all the imports to function)
+
+
 from francis import io
 from francis import preprocess
 from francis import spectrogram
 from francis import model_adaptor
 from francis import split_filter
 from francis import model
-from francis.spinner import Spinner
+from francis.output_progress import Spinner
+from francis.output_progress import default_bar
 from francis.default_config import DEFAULT_CONFIG
-import numpy as np
-import click
+from numpy import around
 from keras.models import load_model
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
+import click
 
 
 @click.group()
@@ -67,7 +72,9 @@ def train(data_path, data_folder, verbose, pre_process):
 
         # preprocess
         the_df = preprocess.process(
-            pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+            pre_df,
+            CONFIG["SAMPLE_RATE"],
+            pre_process=CONFIG["PREPROCESSING_ON"],
         )
 
         # split filter
@@ -95,7 +102,7 @@ def train(data_path, data_folder, verbose, pre_process):
             f"{results_folder}/test_train_data",
             the_df,
             rows_per_file=1000,
-            results_folder=results_folder,
+            results_folder=results_folder
         )
 
     else:
@@ -173,6 +180,7 @@ def listen(audio_sample):
     # add spectrogram
     the_df = spectrogram.add_to_df(the_df)
 
+    print(the_df)
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
 
@@ -182,7 +190,7 @@ def listen(audio_sample):
         the_model = load_model("model.h5")
 
     print("predicting ...")
-    predictions = np.around(the_model.predict(spectrograms))
+    predictions = around(the_model.predict(spectrograms))
 
     print("load categories")
     categories = io.load_categories("model.h5")

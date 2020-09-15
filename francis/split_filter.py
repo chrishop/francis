@@ -4,20 +4,26 @@
 # the dataset.
 # onwards from here the data is sent to be made into a spectrogram
 
-import pandas as pd
+from pandas import DataFrame
 import numpy as np
-from progress.bar import Bar
+from francis.output_progress import default_bar
 
 
 def call(
-    df, sample_rate=22050, second_split=5, split_type="quartile", split_cutoff=0.15
+    df,
+    sample_rate=22050,
+    second_split=5,
+    split_type="quartile",
+    split_cutoff=0.15,
 ):
     return __split(df, sample_rate, second_split, split_type, split_cutoff)
 
 
-def __split(pre_df, sample_rate, second_split, split_type, split_cutoff):
+def __split(
+    pre_df, sample_rate, second_split, split_type, split_cutoff, bar_config=default_bar
+):
     labeled = []
-    bar = Bar("chunking and filtering audio... \t\t\t", max=len(pre_df))
+    bar = bar_config("chunking and filtering audio... \t\t\t", len(pre_df))
     for i, row in pre_df.iterrows():
         try:
             split_buffer = __split_buffer(
@@ -32,7 +38,7 @@ def __split(pre_df, sample_rate, second_split, split_type, split_cutoff):
             pass
 
     bar.finish()
-    return pd.DataFrame(labeled, columns=["label", "audio_buffer"])
+    return DataFrame(labeled, columns=["label", "audio_buffer"])
 
 
 def __split_buffer(buffer, sample_rate, seconds):
