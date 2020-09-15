@@ -33,10 +33,8 @@ class SplitFilterTest(unittest.TestCase):
             }
         )
 
-        pre_df = preprocess.process(pre_df, True)
+        pre_df = preprocess.process(pre_df, 22050, True)
         result_df = split_filter.call(pre_df)
-
-        print(result_df)
 
         # there are 4 results
         self.assertEqual(len(result_df.index), 4)

@@ -51,9 +51,9 @@ def save_df(folderpath: str, df, rows_per_file=1000):
         try:
             mini_df.to_parquet(filepath)
             files_made.append(filepath)
-        except Exception as e:
-            print(e)
-            print("oops couldn't handle that one")
+        except Exception:
+            pass
+            # should put logging here
         bar.next()
     bar.finish()
     return files_made

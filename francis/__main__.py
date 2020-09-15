@@ -50,8 +50,9 @@ def train(data_path, data_folder, show_model, pre_process):
         CONFIG["PREPROCESSING_ON"] = pre_process
         CONFIG["SHOW_MODEL"] = show_model
     except IOError:
-        print("I can't find a francis.cfg file in this directory!")
-        print("try 'francis init' to get a new config")
+        print("Can't find a francis.cfg file in this directory!")
+        print("Defaulting back to default config")
+        print("use 'francis init' create a default config")
         exit(1)
     except ValueError:
         print("I can't read the francis.cfg file!")
