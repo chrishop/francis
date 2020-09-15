@@ -178,7 +178,6 @@ def listen(audio_sample):
     # add spectrogram
     the_df = spectrogram.add_to_df(the_df)
 
-    print(the_df)
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
 
