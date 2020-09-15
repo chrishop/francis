@@ -7,7 +7,6 @@ from francis import split_filter
 from francis import model
 from francis.spinner import Spinner
 from francis.default_config import DEFAULT_CONFIG
-import pandas as pd
 import numpy as np
 import click
 from keras.models import load_model
@@ -108,9 +107,14 @@ def train(data_path, data_folder, verbose, pre_process):
         the_df, test_size=CONFIG["TRAIN_TEST_SPLIT"]
     )
 
-    samples = train_output.shape
-    print(f"about to train on {samples} samples!")
+    total_samples = len(the_df.index)
+    training_samples = train_output.shape[0]
+    testing_samples = test_output.shape[0]
+    categories = train_output.shape[1]
 
+    print(f"total samples: {total_samples} with {categories} categories")
+    print(f"about to train on {training_samples} samples!")
+    print(f"then test on {testing_samples} samples!")
     # make model
     the_model = model.make(num_birds)
 
