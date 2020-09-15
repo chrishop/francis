@@ -1,8 +1,6 @@
 import os
 
-os.environ[
-    "TF_CPP_MIN_LOG_LEVEL"
-] = "3"  # disables tensorflow debugging output (this line needs to be before all the imports to function)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
 
 
 from francis import io
@@ -102,7 +100,7 @@ def train(data_path, data_folder, verbose, pre_process):
             f"{results_folder}/test_train_data",
             the_df,
             rows_per_file=1000,
-            results_folder=results_folder
+            results_folder=results_folder,
         )
 
     else:

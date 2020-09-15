@@ -39,4 +39,4 @@ class Spinner:
 
 
 def default_bar(text, bar_length):
-    return Bar(text, max=bar_length, fill="*", suffix='%(index)d/%(max)d')
+    return Bar(text, max=bar_length, fill="*", suffix="%(index)d/%(max)d")

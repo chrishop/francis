@@ -21,9 +21,7 @@ import random
 
 def download(xeno_canto_args, delete_old=False):
     xenocanto.download(xeno_canto_args)
-    return convert_to_wav(
-        os.getcwd() + "/dataset/audio", delete_old=delete_old
-    )
+    return convert_to_wav(os.getcwd() + "/dataset/audio", delete_old=delete_old)
 
 
 def load_into_df(folderpath, bar_config=default_bar):
