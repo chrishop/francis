@@ -84,6 +84,7 @@ def train(data_path, data_folder, verbose, pre_process):
         results_folder = io.results_foldername()
         try:
             os.mkdir(os.getcwd() + "/" + results_folder)
+            os.mkdir(f"{os.getcwd()}/{results_folder}/test_train_data")
         except FileExistsError:
             print("folder already exists, try running again")
             print("it shouldn't happen")
