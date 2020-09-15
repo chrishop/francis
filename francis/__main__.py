@@ -35,29 +35,34 @@ def init():
 @click.command()
 @click.argument("data_path")
 @click.option("-d", "--data-folder", is_flag=True)
-@click.option("-s", "--show-model", is_flag=True)
+@click.option("-v", "--verbose", is_flag=True)
 @click.option("-p", "--pre-process", is_flag=True)
-def train(data_path, data_folder, show_model, pre_process):
+def train(data_path, data_folder, verbose, pre_process):
     """trains the neural network
 
     given an audio/dataset folder given by xeno-canto python package
     or a folder of .parquet files from a previous training session
     """
+    CONFIG = {}
 
     # try loading config
     try:
         CONFIG = {**DEFAULT_CONFIG, **io.load_config()}
-        CONFIG["PREPROCESSING_ON"] = pre_process
-        CONFIG["SHOW_MODEL"] = show_model
     except IOError:
         print("Can't find a francis.cfg file in this directory!")
         print("Defaulting back to default config")
         print("use 'francis init' create a default config")
-        exit(1)
+        CONFIG = DEFAULT_CONFIG
     except ValueError:
         print("I can't read the francis.cfg file!")
         print("Is it formatted correctly?")
         exit(1)
+
+    # cli overrides config
+    CONFIG["PREPROCESSING_ON"] = pre_process
+    CONFIG["VERBOSE"] = verbose
+    
+    
 
     # load into df
     if not data_folder:
@@ -107,19 +112,19 @@ def train(data_path, data_folder, show_model, pre_process):
     print("making model")
     the_model = model.make(num_birds)
 
-    if CONFIG["SHOW_MODEL"]:
+    if CONFIG["VERBOSE"]:
         the_model.summary()
 
     # train model
     print("training model")
     model.train(
-        the_model, train_input, train_output, batch_size=32, epochs=5, verbose=1
+        the_model, train_input, train_output, batch_size=32, epochs=5, verbose=bool_to_int(CONFIG["VERBOSE"])
     )
 
     # test model
     print("testing model")
     with Spinner():
-        pass_rate = model.test(the_model, test_input, test_output, verbose=0)
+        pass_rate = model.test(the_model, test_input, test_output, verbose=bool_to_int(CONFIG["VERBOSE"]))
     print(f"{pass_rate[1] * 100} %")
 
     # save model
@@ -174,6 +179,11 @@ def is_file(path):
         return True
     return False
 
+
+def bool_to_int(boolean: bool) -> int:
+    if boolean:
+        return 1
+    return 0
 
 cli.add_command(init)
 cli.add_command(train)
