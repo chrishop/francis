@@ -186,9 +186,9 @@ def listen(audio_sample, model_path):
 
     # preprocess
     the_df = preprocess.process(
-            pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
-        )
-    
+        pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+    )
+
     # split filter
     the_df = split_filter.call(
         the_df,
@@ -197,8 +197,7 @@ def listen(audio_sample, model_path):
         CONFIG["SPLIT_FILTER_TYPE"],
         CONFIG["SPLIT_FILTER_CUTOFF"],
     )
-        
-    
+
     # add spectrogram
     the_df = spectrogram.add_to_df(the_df)
 
