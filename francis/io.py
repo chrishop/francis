@@ -48,9 +48,9 @@ def save_df(
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-    bar_config = default_bar(
+    bar_config = bar(
         f"saving audio samples to {results_folder}/test_train_data...",
-        len(split_df),
+        max=len(split_df),
     )
     files_made = []
     for i, mini_df in enumerate(split_df):
