@@ -38,6 +38,19 @@ chmod +x install.sh
 ./install
 ```
 
+## Quick Start
+
+```
+#init config
+francis init
+
+#train
+francis train path/to/audio/dataset
+
+#listen
+francis listen path/to/wav/file path/to/keras/model.h5
+```
+
 ## (Not So) Quick Start
 
 ### Data
