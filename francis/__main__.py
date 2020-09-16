@@ -128,9 +128,11 @@ def train(data_path, data_folder, verbose, pre_process):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
+
     # adding spectograms
     spectrogram_bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
     the_df = spectrogram.add_to_df(the_df, bar_config=spectrogram_bar)
+
 
     # adapt to model
     print("adapting model")
@@ -182,18 +184,45 @@ def train(data_path, data_folder, verbose, pre_process):
 
 @click.command()
 @click.argument("audio_sample")
-def listen(audio_sample):
+@click.argument("model_path")
+def listen(audio_sample, model_path):
     """The program will try to recognise the bird in the audio sample.
 
     The clip must be longer than 5s.
     """
+    model_path = f"{os.getcwd()}/{model_path}"
+    print(model_path)
+
+    # load config
+    try:
+        CONFIG = {**DEFAULT_CONFIG, **io.load_config()}
+    except IOError:
+        print("Can't find a francis.cfg file in this directory!")
+        print("Defaulting back to default config")
+        print("use 'francis init' create a default config")
+        CONFIG = DEFAULT_CONFIG
+    except ValueError:
+        print("I can't read the francis.cfg file!")
+        print("Is it formatted correctly?")
+        exit(1)
 
     # read into dataframe
     print("loading file into dataframe")
     pre_df = io.load_file_into_df(audio_sample)
 
     # preprocess
-    the_df = preprocess.process(pre_df)
+    the_df = preprocess.process(
+        pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+    )
+
+    # split filter
+    the_df = split_filter.call(
+        the_df,
+        CONFIG["SAMPLE_RATE"],
+        CONFIG["SAMPLE_SECONDS"],
+        CONFIG["SPLIT_FILTER_TYPE"],
+        CONFIG["SPLIT_FILTER_CUTOFF"],
+    )
 
     # add spectrogram
     the_df = spectrogram.add_to_df(the_df)
@@ -204,13 +233,17 @@ def listen(audio_sample):
     # load model
     print("loading model")
     with Spinner():
-        the_model = load_model("model.h5")
+        try:
+            the_model = load_model(model_path)
+        except IOError:
+            print("I couldn't find the model there")
+            exit(1)
 
     print("predicting ...")
     predictions = around(the_model.predict(spectrograms))
 
     print("load categories")
-    categories = io.load_categories("model.h5")
+    categories = io.load_categories(model_path)
 
     print("predictions ..")
     #  print(model_adaptor.adapt_predictions(predictions, categories))
