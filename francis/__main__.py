@@ -67,37 +67,39 @@ def train(data_path, data_folder, verbose, pre_process):
 
     # load into df
     if not data_folder:
-        bar = default_bar(
+        wav_bar = default_bar(
             "converting mp3 to wav...\t\t\t\t",
             len(glob.glob(data_path + "/**/*.mp3", recursive=True)),
         )
         io.convert_to_wav(
-            data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"], bar_config=bar
+            data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"], bar_config=wav_bar
         )
-        bar = default_bar(
+        df_load_bar = default_bar(
             "loading audiofiles... \t\t\t\t\t",
             len(glob.glob(data_path + "/**/*.wav", recursive=True)),
         )
-        pre_df = io.load_into_df(data_path, bar_config=bar)
+        pre_df = io.load_into_df(data_path, bar_config=df_load_bar)
 
         # preprocess
-        bar = default_bar("noise reducing and high pass filtering", len(pre_df))
+        preprocess_bar = default_bar(
+            "noise reducing and high pass filtering", len(pre_df)
+        )
         the_df = preprocess.process(
             pre_df,
             CONFIG["SAMPLE_RATE"],
             pre_process=CONFIG["PREPROCESSING_ON"],
-            bar_config=bar
+            bar_config=preprocess_bar,
         )
 
         # split filter
-        bar = default_bar("chunking and filtering audio... \t\t\t", len(the_df))
+        split_bar = default_bar("chunking and filtering audio... \t\t\t", len(the_df))
         the_df = split_filter.split(
             the_df,
             CONFIG["SAMPLE_RATE"],
             CONFIG["SAMPLE_SECONDS"],
             CONFIG["SPLIT_FILTER_TYPE"],
             CONFIG["SPLIT_FILTER_CUTOFF"],
-            bar_config=bar,
+            bar_config=split_bar,
         )
 
         # creating directory to put results in
@@ -126,8 +128,8 @@ def train(data_path, data_folder, verbose, pre_process):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
-    bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
-    the_df = spectrogram.add_to_df(the_df, bar_config=bar)
+    spectrogram_bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
+    the_df = spectrogram.add_to_df(the_df, bar_config=spectrogram_bar)
 
     # adapt to model
     print("adapting model")
