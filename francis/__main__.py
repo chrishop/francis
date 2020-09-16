@@ -128,6 +128,7 @@ def train(data_path, data_folder, verbose, pre_process):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
+    # adding spectograms
     spectrogram_bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
     the_df = spectrogram.add_to_df(the_df, bar_config=spectrogram_bar)
 
