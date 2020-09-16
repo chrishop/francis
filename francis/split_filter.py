@@ -9,21 +9,15 @@ import numpy as np
 from francis.output_progress import default_bar
 
 
-def call(
-    df,
+def split(
+    pre_df,
     sample_rate=22050,
     second_split=5,
     split_type="quartile",
     split_cutoff=0.15,
-):
-    return __split(df, sample_rate, second_split, split_type, split_cutoff)
-
-
-def __split(
-    pre_df, sample_rate, second_split, split_type, split_cutoff, bar_config=default_bar
+    bar_config=None,
 ):
     labeled = []
-    bar = bar_config("chunking and filtering audio... \t\t\t", len(pre_df))
     for i, row in pre_df.iterrows():
         try:
             split_buffer = __split_buffer(
@@ -32,12 +26,12 @@ def __split(
             filtered_buffer = __filter_chunks(split_buffer, split_type, split_cutoff)
             for buffer in filtered_buffer:
                 labeled.append((row["label"], buffer))
-
-            bar.next()
+            if bar_config:
+                bar_config.next()
         except ZeroDivisionError:
             pass
-
-    bar.finish()
+    if bar_config:
+        bar_config.finish()
     return DataFrame(labeled, columns=["label", "audio_buffer"])
 
 

@@ -6,14 +6,15 @@ from francis.output_progress import default_bar
 # this will produce the mfcc image used to train the neural networks
 
 
-def add_to_df(the_df, bar_config=default_bar):
-    bar = bar_config("adding spectrograms \t\t\t\t\t", len(the_df))
+def add_to_df(the_df, bar_config=None):
     spectrogram_column_data = []
     for i, row in the_df.iterrows():
         spectrogram_column_data.append(__create_spectrogram(row["audio_buffer"]))
-        bar.next()
+        if bar_config:
+            bar_config.next()
     the_df["spectrogram"] = spectrogram_column_data
-    bar.finish()
+    if bar_config:
+        bar_config.finish()
     return the_df
 
 

@@ -13,8 +13,10 @@ from francis.output_progress import Spinner
 from francis.output_progress import default_bar
 from francis.default_config import DEFAULT_CONFIG
 from numpy import around
+from numpy import array_split
 from keras.models import load_model
 import click
+import glob
 
 
 @click.group()
@@ -65,23 +67,37 @@ def train(data_path, data_folder, verbose, pre_process):
 
     # load into df
     if not data_folder:
-        io.convert_to_wav(data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"])
-        pre_df = io.load_into_df(data_path)
+        bar = default_bar(
+            "converting mp3 to wav...\t\t\t\t",
+            len(glob.glob(data_path + "/**/*.mp3", recursive=True)),
+        )
+        io.convert_to_wav(
+            data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"], bar_config=bar
+        )
+        bar = default_bar(
+            "loading audiofiles... \t\t\t\t\t",
+            len(glob.glob(data_path + "/**/*.wav", recursive=True)),
+        )
+        pre_df = io.load_into_df(data_path, bar_config=bar)
 
         # preprocess
+        bar = default_bar("noise reducing and high pass filtering", len(pre_df))
         the_df = preprocess.process(
             pre_df,
             CONFIG["SAMPLE_RATE"],
             pre_process=CONFIG["PREPROCESSING_ON"],
+            bar_config=bar
         )
 
         # split filter
-        the_df = split_filter.call(
+        bar = default_bar("chunking and filtering audio... \t\t\t", len(the_df))
+        the_df = split_filter.split(
             the_df,
             CONFIG["SAMPLE_RATE"],
             CONFIG["SAMPLE_SECONDS"],
             CONFIG["SPLIT_FILTER_TYPE"],
             CONFIG["SPLIT_FILTER_CUTOFF"],
+            bar_config=bar,
         )
 
         # creating directory to put results in
@@ -110,7 +126,8 @@ def train(data_path, data_folder, verbose, pre_process):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
-    the_df = spectrogram.add_to_df(the_df)
+    bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
+    the_df = spectrogram.add_to_df(the_df, bar_config=bar)
 
     # adapt to model
     print("adapting model")
