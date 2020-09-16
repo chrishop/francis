@@ -1,17 +1,22 @@
 import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
+
+
 from francis import io
 from francis import preprocess
 from francis import spectrogram
 from francis import model_adaptor
 from francis import split_filter
 from francis import model
-from francis.spinner import Spinner
+from francis.output_progress import Spinner
+from francis.output_progress import default_bar
 from francis.default_config import DEFAULT_CONFIG
-import numpy as np
-import click
+from numpy import around
+from numpy import array_split
 from keras.models import load_model
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # disables tensorflow debugging output
+import click
+import glob
 
 
 @click.group()
@@ -62,21 +67,39 @@ def train(data_path, data_folder, verbose, pre_process):
 
     # load into df
     if not data_folder:
-        io.convert_to_wav(data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"])
-        pre_df = io.load_into_df(data_path)
+        wav_bar = default_bar(
+            "converting mp3 to wav...\t\t\t\t",
+            len(glob.glob(data_path + "/**/*.mp3", recursive=True)),
+        )
+        io.convert_to_wav(
+            data_path, delete_old=CONFIG["DELETE_CONVERTED_MP3"], bar_config=wav_bar
+        )
+        df_load_bar = default_bar(
+            "loading audiofiles... \t\t\t\t\t",
+            len(glob.glob(data_path + "/**/*.wav", recursive=True)),
+        )
+        pre_df = io.load_into_df(data_path, bar_config=df_load_bar)
 
         # preprocess
+        preprocess_bar = default_bar(
+            "noise reducing and high pass filtering", len(pre_df)
+        )
         the_df = preprocess.process(
-            pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+            pre_df,
+            CONFIG["SAMPLE_RATE"],
+            pre_process=CONFIG["PREPROCESSING_ON"],
+            bar_config=preprocess_bar,
         )
 
         # split filter
-        the_df = split_filter.call(
+        split_bar = default_bar("chunking and filtering audio... \t\t\t", len(the_df))
+        the_df = split_filter.split(
             the_df,
             CONFIG["SAMPLE_RATE"],
             CONFIG["SAMPLE_SECONDS"],
             CONFIG["SPLIT_FILTER_TYPE"],
             CONFIG["SPLIT_FILTER_CUTOFF"],
+            bar_config=split_bar,
         )
 
         # creating directory to put results in
@@ -105,8 +128,9 @@ def train(data_path, data_folder, verbose, pre_process):
     # count the num of unique label entries in the df
     num_birds = the_df["label"].nunique()
 
-    # adding spectrograms
-    the_df = spectrogram.add_to_df(the_df)
+    # adding spectograms
+    spectrogram_bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
+    the_df = spectrogram.add_to_df(the_df, bar_config=spectrogram_bar)
 
     # adapt to model
     print("adapting model")
@@ -214,7 +238,7 @@ def listen(audio_sample, model_path):
             exit(1)
 
     print("predicting ...")
-    predictions = np.around(the_model.predict(spectrograms))
+    predictions = around(the_model.predict(spectrograms))
 
     print("load categories")
     categories = io.load_categories(model_path)

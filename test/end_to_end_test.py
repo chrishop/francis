@@ -36,7 +36,7 @@ class EndToEndTest(unittest.TestCase):
         # preprocess stage
         the_df = preprocess.process(pre_df, 22050, True)
 
-        the_df = split_filter.call(
+        the_df = split_filter.split(
             the_df,
         )
 

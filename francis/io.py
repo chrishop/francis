@@ -5,7 +5,7 @@ import os
 import xenocanto
 from pydub import AudioSegment
 from progress.bar import Bar
-from francis.spinner import Spinner
+from francis.output_progress import Spinner
 import numpy as np
 import json
 import math
@@ -23,14 +23,15 @@ def download(xeno_canto_args, delete_old=False):
     return convert_to_wav(os.getcwd() + "/dataset/audio", delete_old=delete_old)
 
 
-def load_into_df(folderpath):
+def load_into_df(folderpath, bar_config=None):
     filepaths = glob.glob(folderpath + "/**/*.wav", recursive=True)
-    bar = Bar("loading audiofiles... \t\t\t\t\t", max=len(filepaths))
     file_data = []
     for i, path in enumerate(filepaths):
-        bar.next()
+        if bar_config:
+            bar_config.next()
         file_data.append(__get_file_data(path))
-    bar.finish()
+    if bar_config:
+        bar_config.finish()
     return pd.DataFrame(file_data, columns=["id", "label", "audio_buffer"])
 
 
@@ -41,26 +42,30 @@ def load_file_into_df(filepath: str):
         )
 
 
-def save_df(folderpath: str, df, rows_per_file=1000, results_folder=""):
+def save_df(
+    folderpath: str, df, rows_per_file=1000, results_folder="", bar_config=None
+):
     rows = len(df.index)
     number_of_files = math.ceil(rows / rows_per_file)
     split_df = np.array_split(df, number_of_files)
-    bar = Bar(
+    bar_config = Bar(
         f"saving audio samples to {results_folder}/test_train_data...",
         max=len(split_df),
     )
     files_made = []
     for i, mini_df in enumerate(split_df):
         filepath = folderpath + f"/test_train_data_{i}.parquet"
-
+        if bar_config:
+            bar_config.next()
         try:
             mini_df.to_parquet(filepath)
             files_made.append(filepath)
         except Exception:
             pass
             # should put logging here
-        bar.next()
-    bar.finish()
+
+    if bar_config:
+        bar_config.finish()
     return files_made
 
 
@@ -93,9 +98,8 @@ def save_config(config: dict, filepath="francis.cfg"):
         json.dump(config, config_file, indent=4)
 
 
-def convert_to_wav(folderpath, delete_old=False):
+def convert_to_wav(folderpath, delete_old=False, bar_config=None):
     filepaths = glob.glob(folderpath + "/**/*.mp3", recursive=True)
-    bar = Bar("converting mp3 to wav...\t\t\t\t", max=len(filepaths))
     converted = []
     for i, path in enumerate(filepaths):
         # reads mp3 and writes wav
@@ -106,8 +110,10 @@ def convert_to_wav(folderpath, delete_old=False):
             os.remove(path)
 
         converted.append(__wav_path(path))
-        bar.next()
-    bar.finish()
+        if bar_config:
+            bar_config.next()
+    if bar_config:
+        bar_config.finish()
     return converted
 
 
