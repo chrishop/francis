@@ -6,8 +6,6 @@
 
 from pandas import DataFrame
 import numpy as np
-from francis.output_progress import default_bar
-
 
 def split(
     pre_df,

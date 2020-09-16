@@ -6,7 +6,6 @@ import xenocanto
 from pydub import AudioSegment
 from progress.bar import Bar
 from francis.output_progress import Spinner
-from francis.output_progress import default_bar
 import numpy as np
 import json
 import math

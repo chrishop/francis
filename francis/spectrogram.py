@@ -1,7 +1,6 @@
 # from librosa import power_to_db
 import librosa.core
 import librosa.feature
-from francis.output_progress import default_bar
 
 # this will produce the mfcc image used to train the neural networks
 

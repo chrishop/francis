@@ -3,7 +3,6 @@
 # high pass filter should only be applied to blackbird audio files not the others
 from francis import noise_reduction
 from francis import high_pass_filter
-from francis.output_progress import default_bar
 
 
 def process(df, sample_rate=22050, pre_process=True, bar_config=None):
