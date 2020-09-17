@@ -75,7 +75,7 @@ The sub-folders of the dataset must be labeled with the category they contain.
 
 
 ### Initialize
-Use `francis init` to produce `francis.cfg` that looks like this.
+Use `francis init` to produce `francis.cfg` that looks like this:
 ```
 {
     "DELETE_CONVERTED_MP3": true,
@@ -114,7 +114,7 @@ in the results folder there are 3 items:
 
 `model.h5` is the resulting keras model that is used to decipher new audio and decide which category it falls under.
 
-here is an example of it running:
+Here is an example of it running:
 [![asciicast](https://asciinema.org/a/HZcKBP7xU9fpZfXkJOxgHuZlu.svg)](https://asciinema.org/a/HZcKBP7xU9fpZfXkJOxgHuZlu)
 
 
