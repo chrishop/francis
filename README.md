@@ -54,7 +54,7 @@ francis listen path/to/wav/file path/to/keras/model.h5
 ## (Not So) Quick Start
 
 ### Data
-First you need some data, you can collect it from your own sources or use the[xeno-canto](https://github.com/ntivirikin/xeno-canto-py) python api.
+First you need some data, you can collect it from your own sources or use the [xeno-canto](https://github.com/ntivirikin/xeno-canto-py) python api.
 
 The file structure of your dataset must look like this:
 ```
