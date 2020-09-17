@@ -2,6 +2,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
 import numpy as np
+from math import sqrt
 
 
 def adapt(the_dataframe, test_size=0.2, random_state=42, split_override=False):
@@ -25,15 +26,30 @@ def adapt_predictions(predictions, categories):
     return list(map(lambda x: categories[x], predictions_as_num))
 
 
-def summarize_predictions(predictions, categories, seconds=5):
+def _prediction_filter(predictions, categories, cuttoff_fun=lambda x: 0):
+    # function returns index of most likely bird or [last index + 1] if no bird exceeds the cutoff
+    # default cuttoff_fun sets cuttoff always to 0, meaning that the max bird will always be chosen
+    cutoff = cuttoff_fun(len(categories))
+    max_arg = np.argmax(predictions, axis=1)
+    max_value = np.amax(predictions, axis=1)
+    filtered_prediction = np.where(max_value < cutoff, len(categories), max_arg)
+    return filtered_prediction
+
+
+def predicted_bird_timestamp(predictions, categories, seconds=5):
     # condenses bird predictions to a time stamp for predicted birds only
-    predictions_as_num = np.argmax(predictions, axis=1)
-    bird_prediction = [[] for i in range(len(categories))]
-    output = ""
-
-    for i, prediction in enumerate(predictions_as_num):
+    predicted_bird_index = _prediction_filter(
+        predictions, categories, cuttoff_fun=lambda x: 1 / sqrt(x)
+    )
+    bird_prediction = [[] for i in range(len(categories) + 1)]
+    for i, prediction in enumerate(predicted_bird_index):
         bird_prediction[prediction].append(i * seconds)
+    return bird_prediction
 
+
+def prediction_string_format(bird_prediction, categories):
+    output = ""
+    categories.append("Unidentified audio")
     for bird, times in enumerate(bird_prediction):
         if times:
             output += (
