@@ -142,10 +142,10 @@ Some datasets require some scrubbing before they can be used, using the `--pre-p
 
 You can now use a trained model to listen to the audio files, to decipher what you are listening to.
 
-below is an example of usage:
+Below is an example of usage:
 [![asciicast](https://asciinema.org/a/kroCpt9oG2cA2fMjpcITSLCSL.svg)](https://asciinema.org/a/kroCpt9oG2cA2fMjpcITSLCSL)
 
-for listening currently the audiofile **must be a wav**.
+For listening currently the audiofile **must be a wav**.
 
 
 
