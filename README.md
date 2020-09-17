@@ -1,5 +1,5 @@
 # Francis
-## Audio Recognition Neural Network
+## Audio Recognition Neural Network 🐦
 
 ## Setup
 
