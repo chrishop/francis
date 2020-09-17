@@ -209,10 +209,14 @@ def listen(audio_sample, model_path):
     pre_df = io.load_file_into_df(audio_sample)
 
     # preprocess
-
-    preprocess_bar = default_bar("noise reducing and high pass filtering \t\t\t", len(pre_df))
+    preprocess_bar = default_bar(
+        "noise reducing and high pass filtering \t\t\t", len(pre_df)
+    )
     the_df = preprocess.process(
-        pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"], bar_config=preprocess_bar
+        pre_df,
+        CONFIG["SAMPLE_RATE"],
+        CONFIG["PREPROCESSING_ON"],
+        bar_config=preprocess_bar,
     )
 
     # split filter
