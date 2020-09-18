@@ -1,5 +1,5 @@
 # Francis
-## Audio Recognition Neural Network
+## Audio Recognition Neural Network 🐦
 
 ## Setup
 
@@ -54,7 +54,7 @@ francis listen path/to/wav/file path/to/keras/model.h5
 ## (Not So) Quick Start
 
 ### Data
-First you need some data, you can collect it from your own sources or use the[xeno-canto](https://github.com/ntivirikin/xeno-canto-py) python api.
+First you need some data, you can collect it from your own sources or use the [xeno-canto](https://github.com/ntivirikin/xeno-canto-py) python api.
 
 The file structure of your dataset must look like this:
 ```
@@ -75,7 +75,7 @@ The sub-folders of the dataset must be labeled with the category they contain.
 
 
 ### Initialize
-Use `francis init` to produce `francis.cfg` that looks like this.
+Use `francis init` to produce `francis.cfg` that looks like this:
 ```
 {
     "DELETE_CONVERTED_MP3": true,
@@ -114,7 +114,7 @@ in the results folder there are 3 items:
 
 `model.h5` is the resulting keras model that is used to decipher new audio and decide which category it falls under.
 
-here is an example of it running:
+Here is an example of it running:
 [![asciicast](https://asciinema.org/a/HZcKBP7xU9fpZfXkJOxgHuZlu.svg)](https://asciinema.org/a/HZcKBP7xU9fpZfXkJOxgHuZlu)
 
 
@@ -142,10 +142,10 @@ Some datasets require some scrubbing before they can be used, using the `--pre-p
 
 You can now use a trained model to listen to the audio files, to decipher what you are listening to.
 
-below is an example of usage:
+Below is an example of usage:
 [![asciicast](https://asciinema.org/a/kroCpt9oG2cA2fMjpcITSLCSL.svg)](https://asciinema.org/a/kroCpt9oG2cA2fMjpcITSLCSL)
 
-for listening currently the audiofile **must be a wav**.
+For listening currently the audiofile **must be a wav**.
 
 
 

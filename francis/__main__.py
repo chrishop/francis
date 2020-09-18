@@ -209,21 +209,30 @@ def listen(audio_sample, model_path):
     pre_df = io.load_file_into_df(audio_sample)
 
     # preprocess
+    preprocess_bar = default_bar(
+        "noise reducing and high pass filtering \t\t\t", len(pre_df)
+    )
     the_df = preprocess.process(
-        pre_df, CONFIG["SAMPLE_RATE"], CONFIG["PREPROCESSING_ON"]
+        pre_df,
+        CONFIG["SAMPLE_RATE"],
+        CONFIG["PREPROCESSING_ON"],
+        bar_config=preprocess_bar,
     )
 
     # split filter
-    the_df = split_filter.call(
+    split_bar = default_bar("chunking and filtering audio... \t\t\t", len(the_df))
+    the_df = split_filter.split(
         the_df,
         CONFIG["SAMPLE_RATE"],
         CONFIG["SAMPLE_SECONDS"],
         CONFIG["SPLIT_FILTER_TYPE"],
         CONFIG["SPLIT_FILTER_CUTOFF"],
+        bar_config=split_bar,
     )
 
     # add spectrogram
-    the_df = spectrogram.add_to_df(the_df)
+    spectrogram_bar = default_bar("adding spectrograms \t\t\t\t\t", len(the_df))
+    the_df = spectrogram.add_to_df(the_df, bar_config=spectrogram_bar)
 
     # adapting spectrograms
     spectrograms = model_adaptor.adapt_spectrograms(the_df)
@@ -238,14 +247,23 @@ def listen(audio_sample, model_path):
             exit(1)
 
     print("predicting ...")
-    predictions = around(the_model.predict(spectrograms))
+    try:
+        predictions = the_model.predict(spectrograms)
+    except:
+        if len(the_df) == 0:
+            print(
+                "Error, data frame empty: input audio was completely filtered out in preprocessing and/or the original audio is silent"
+            )
+        exit(1)
+
+    print(around(the_model.predict(spectrograms), decimals=3))
 
     print("load categories")
     categories = io.load_categories(model_path)
 
     print("predictions ..")
-    #  print(model_adaptor.adapt_predictions(predictions, categories))
-    print(model_adaptor.summarize_predictions(predictions, categories))
+    bird_prediction = model_adaptor.predicted_bird_timestamp(predictions, categories)
+    print(model_adaptor.prediction_string_format(bird_prediction, categories))
 
 
 def bool_to_int(boolean: bool) -> int:
