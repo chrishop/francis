@@ -256,8 +256,6 @@ def listen(audio_sample, model_path):
             )
         exit(1)
 
-    print(around(the_model.predict(spectrograms), decimals=3))
-
     print("load categories")
     categories = io.load_categories(model_path)
 
