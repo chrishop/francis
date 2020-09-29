@@ -58,7 +58,9 @@ class IOTest(unittest.TestCase):
             "test/fixtures/save_categories/test.h5", label_df
         )
 
-        np.testing.assert_array_equal(result_list, np.string_(["CommonBlackbird", "EurasianRobin", "Wren"]))
+        np.testing.assert_array_equal(
+            result_list, np.string_(["CommonBlackbird", "EurasianRobin", "Wren"])
+        )
 
         os.remove("test/fixtures/save_categories/test.h5")
 
