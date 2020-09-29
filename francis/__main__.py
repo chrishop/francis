@@ -12,8 +12,6 @@ from francis import model
 from francis.output_progress import Spinner
 from francis.output_progress import default_bar
 from francis.default_config import DEFAULT_CONFIG
-from numpy import around
-from numpy import array_split
 from keras.models import load_model
 import click
 import glob
