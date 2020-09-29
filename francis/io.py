@@ -75,7 +75,7 @@ def load_df(folderpath: str):
 
 
 def save_categories(filepath: str, df):
-    categories_list = np.string_(df["label"].unique().tolist())
+    categories_list = np.string_(sorted(df["label"].unique().tolist()))
 
     with h5py.File(filepath, "a") as hf:
         hf.create_dataset("categories", data=categories_list)

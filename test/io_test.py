@@ -51,14 +51,14 @@ class IOTest(unittest.TestCase):
         model_df = pd.DataFrame({"weights": [i for i in range(100)]})
         model_df.to_hdf("test/fixtures/save_categories/test.h5", "some_weights")
 
-        expected_list = np.string_(["CommonBlackbird", "EurasianRobin", "Wren"])
-        label_df = pd.DataFrame({"label": expected_list})
+        input_list = np.string_(["Wren", "CommonBlackbird", "EurasianRobin"])
+        label_df = pd.DataFrame({"label": input_list})
 
         result_list = io.save_categories(
             "test/fixtures/save_categories/test.h5", label_df
         )
 
-        np.testing.assert_array_equal(result_list, expected_list)
+        np.testing.assert_array_equal(result_list, np.string_(["CommonBlackbird", "EurasianRobin", "Wren"]))
 
         os.remove("test/fixtures/save_categories/test.h5")
 
